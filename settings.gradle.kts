@@ -13,6 +13,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "AdzunaJobs"
+rootProject.name = "productivity"
 include(":app")
  
