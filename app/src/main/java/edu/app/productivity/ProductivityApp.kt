@@ -1,4 +1,4 @@
-package com.example.adzunajobs
+package edu.app.productivity
 
 import android.app.Application
 import dagger.hilt.android.HiltAndroidApp

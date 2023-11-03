@@ -1,3 +1,25 @@
 <resources>
     <string name="app_name">Productivity</string>
+
+    <string name="timer_running_state_header_1">Go on working</string>
+    <string name="timer_running_state_header_2">Good job, do your best</string>
+    <string name="timer_running_state_header_3">You\'re working now</string>
+    <string name="timer_running_state_header_4">Just don\'t stop</string>
+
+    <string name="timer_relaxing_state_header_1">Just relax</string>
+    <string name="timer_relaxing_state_header_2">Get some rest</string>
+    <string name="timer_relaxing_state_header_3">Take a break from work, a little more time</string>
+    <string name="timer_relaxing_state_header_4">Work is not a wolf, it won\'t run into the forest</string>
+
+    <string name="timer_paused_state_header">Timer is paused, just continue</string>
+    <string name="timer_setup_state_header">Set up your plan</string>
+
+    <string name="stop_timer">Stop program</string>
+
+    <string name="single_shot_timer_plan_setup_action">Single shot timer</string>
+    <string name="single_shot_timer_plan_setup_header">Set time you need to work</string>
+
+    <string name="timer_setup_confirm">Set up</string>
+    <string name="timer_setup_activity_type">Activity</string>
+
 </resources>

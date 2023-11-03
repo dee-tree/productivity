@@ -1,4 +1,4 @@
-package com.example.adzunajobs
+package edu.app.productivity
 
 import org.junit.Test
 
