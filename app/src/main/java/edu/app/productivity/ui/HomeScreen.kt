@@ -63,8 +63,8 @@ fun HomeScreen() {
                 timerState = TimerState.TimerRunning(action.duration)
             },
             onTimerPause = { timerState = timerState.pause() },
-            onTimerContinue = { timerState = timerState.continueRun() },
-            onTimerStop = { timerState = timerState.stop() },
+            onTimerResume = { timerState = timerState.resume() },
+            onTimerCancel = { timerState = timerState.cancel() },
         )
     }
 }

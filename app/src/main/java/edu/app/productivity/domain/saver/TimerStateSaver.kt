@@ -7,7 +7,7 @@ import kotlin.time.Duration.Companion.milliseconds
 
 
 private enum class TimerStateType {
-    NOT_INITIATED, RUNNING, PAUSED, COMPLETED
+    NOT_INITIATED, RUNNING, PAUSED, COMPLETED, CANCELLED
 }
 
 private val TimerState.type: TimerStateType
@@ -15,6 +15,7 @@ private val TimerState.type: TimerStateType
         is TimerState.TimerNotInitiated -> TimerStateType.NOT_INITIATED
         is TimerState.TimerRunning -> TimerStateType.RUNNING
         is TimerState.TimerPaused -> TimerStateType.PAUSED
+        is TimerState.TimerCancelled -> TimerStateType.CANCELLED
         is TimerState.TimerCompleted -> TimerStateType.COMPLETED
     }
 
@@ -26,7 +27,7 @@ val TimerState.Companion.saver: Saver<TimerState, Any>
                 this[remainingSaverField] = it.remaining.inWholeMilliseconds
 
                 if (it is TimerState.TimerPaused) {
-                    this[pausedAtField] = it.pausedAt
+                    this[pausedAtSaverField] = it.pausedAt
                 }
             }
         },
@@ -39,11 +40,12 @@ val TimerState.Companion.saver: Saver<TimerState, Any>
                 TimerStateType.NOT_INITIATED -> TimerState.TimerNotInitiated
                 TimerStateType.RUNNING -> TimerState.TimerRunning(remaining)
                 TimerStateType.PAUSED -> {
-                    val pausedAt = map[pausedAtField] as Long?
+                    val pausedAt = map[pausedAtSaverField] as Long?
                     check(pausedAt != null)
                     TimerState.TimerPaused(remaining, pausedAt)
                 }
 
+                TimerStateType.CANCELLED -> TimerState.TimerCancelled(remaining)
                 TimerStateType.COMPLETED -> TimerState.TimerCompleted
             }
         }
@@ -51,4 +53,4 @@ val TimerState.Companion.saver: Saver<TimerState, Any>
 
 private val TimerState.Companion.typeSaverField: String get() = "type"
 private val TimerState.Companion.remainingSaverField: String get() = "remaining"
-private val TimerState.Companion.pausedAtField: String get() = "pausedAt"
+private val TimerState.Companion.pausedAtSaverField: String get() = "pausedAt"

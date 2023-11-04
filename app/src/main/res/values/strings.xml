@@ -14,7 +14,7 @@
     <string name="timer_paused_state_header">Timer is paused, just continue</string>
     <string name="timer_setup_state_header">Set up your plan</string>
 
-    <string name="stop_timer">Stop program</string>
+    <string name="cancel_timer">Cancel program</string>
 
     <string name="single_shot_timer_plan_setup_action">Single shot timer</string>
     <string name="single_shot_timer_plan_setup_header">Set time you need to work</string>

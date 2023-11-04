@@ -58,8 +58,8 @@ fun TimerSurface(
     action: Action,
     onSetSingleShotTimer: (Action) -> Unit = {},
     onTimerPause: () -> Unit = {},
-    onTimerStop: () -> Unit = {},
-    onTimerContinue: () -> Unit = {},
+    onTimerCancel: () -> Unit = {},
+    onTimerResume: () -> Unit = {},
 ) {
     val ctx = LocalContext.current
     val stateTitle = remember { getStateMessage(timerState, action, ctx) }
@@ -96,12 +96,12 @@ fun TimerSurface(
 
         Row {
             if (timerState.isRunning || timerState.isPaused) {
-                // TODO: add dialog confirmation on stop
+                // TODO: add dialog confirmation on cancel
                 TextButton(
-                    onClick = onTimerStop,
+                    onClick = onTimerCancel,
                     colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onBackground)
                 ) {
-                    Text(text = stringResource(R.string.stop_timer))
+                    Text(text = stringResource(R.string.cancel_timer))
                 }
             }
 
@@ -115,8 +115,8 @@ fun TimerSurface(
                     )
                 }
 
-                is TimerState.TimerPaused -> IconButton(onClick = onTimerContinue) {
-                    Icon(Icons.Rounded.PlayArrow, contentDescription = "continue")
+                is TimerState.TimerPaused -> IconButton(onClick = onTimerResume) {
+                    Icon(Icons.Rounded.PlayArrow, contentDescription = "resume")
                 }
 
                 else -> {}
