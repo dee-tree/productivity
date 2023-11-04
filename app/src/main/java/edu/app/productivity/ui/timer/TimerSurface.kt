@@ -3,8 +3,10 @@
 package edu.app.productivity.ui.timer
 
 
-import android.content.Context
 import android.content.res.Configuration
+import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,7 +17,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material.icons.rounded.PlayArrow
+import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -29,6 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,7 +42,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -48,6 +52,7 @@ import edu.app.productivity.domain.Action
 import edu.app.productivity.domain.TimerState
 import edu.app.productivity.theme.ProductivityTheme
 import edu.app.productivity.theme.Typography
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
@@ -59,10 +64,13 @@ fun TimerSurface(
     onSetSingleShotTimer: (Action) -> Unit = {},
     onTimerPause: () -> Unit = {},
     onTimerCancel: () -> Unit = {},
+    onTimerRestore: () -> Unit = {},
     onTimerResume: () -> Unit = {},
+    onTimerClear: () -> Unit = {},
+    defaultTimerRestoreActionTimeout: Duration = 3.seconds
 ) {
-    val ctx = LocalContext.current
-    val stateTitle = remember { getStateMessage(timerState, action, ctx) }
+    val stateTitleId = rememberTimerHeaderStringId(timerState, action)
+    val stateTitle = stringResource(stateTitleId)
 
     val scope = rememberCoroutineScope()
 
@@ -79,47 +87,60 @@ fun TimerSurface(
         )
 
         Spacer(modifier = Modifier.padding(32.dp))
-        if (timerState is TimerState.TimerRunning || timerState is TimerState.TimerPaused) {
-            CoinMiningAnimation()
-            Spacer(modifier = Modifier.padding(16.dp))
-            TimerText(timerState.remaining)
-        } else if (timerState is TimerState.TimerNotInitiated) {
-            OutlinedButton(
-                onClick = { showSingleShotTimerSheet = true }
-            ) {
+
+
+        AnimatedVisibility(visible = timerState is TimerState.TimerRunning || timerState is TimerState.TimerPaused) {
+            Column {
+                CoinMiningAnimation()
+                Spacer(modifier = Modifier.padding(16.dp))
+                TimerText(timerState.remaining)
+            }
+        }
+
+        AnimatedVisibility(visible = timerState is TimerState.TimerNotInitiated) {
+            OutlinedButton(onClick = { showSingleShotTimerSheet = true }) {
                 Text(text = stringResource(R.string.single_shot_timer_plan_setup_action))
             }
+        }
 
+        AnimatedVisibility(visible = timerState is TimerState.TimerCancelled) {
+            TimerCancelledCard(
+                onTimerRestore = onTimerRestore,
+                onTimerClear = onTimerClear,
+                defaultTimerRestoreActionTimeout = defaultTimerRestoreActionTimeout
+            )
         }
 
         Spacer(modifier = Modifier.padding(8.dp))
 
         Row {
-            if (timerState.isRunning || timerState.isPaused) {
-                // TODO: add dialog confirmation on cancel
-                TextButton(
-                    onClick = onTimerCancel,
-                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onBackground)
-                ) {
-                    Text(text = stringResource(R.string.cancel_timer))
+
+            AnimatedVisibility(timerState.isRunning || timerState.isPaused) {
+                Row {
+
+                    TextButton(
+                        onClick = onTimerCancel,
+                        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onBackground)
+                    ) {
+                        Text(text = stringResource(R.string.cancel_timer))
+                    }
+
+                    Spacer(modifier = Modifier.padding(horizontal = 6.dp))
+
+
+                    IconButton(onClick = if (timerState.isRunning) onTimerPause else onTimerResume) {
+                        Crossfade(targetState = timerState.isRunning, label = "") { running ->
+                            if (running)
+                                Icon(
+                                    painterResource(R.drawable.round_pause_24),
+                                    contentDescription = "pause"
+                                )
+                            else
+                                Icon(Icons.Rounded.PlayArrow, contentDescription = "resume")
+                        }
+                    }
                 }
-            }
 
-            Spacer(modifier = Modifier.padding(horizontal = 6.dp))
-
-            when (timerState) {
-                is TimerState.TimerRunning -> IconButton(onClick = onTimerPause) {
-                    Icon(
-                        painterResource(id = R.drawable.round_pause_24),
-                        contentDescription = "pause"
-                    )
-                }
-
-                is TimerState.TimerPaused -> IconButton(onClick = onTimerResume) {
-                    Icon(Icons.Rounded.PlayArrow, contentDescription = "resume")
-                }
-
-                else -> {}
             }
 
         }
@@ -142,6 +163,60 @@ fun TimerSurface(
         )
     }
 }
+
+@Composable
+fun TimerCancelledCard(
+    onTimerRestore: () -> Unit = {},
+    onTimerClear: () -> Unit = {},
+    defaultTimerRestoreActionTimeout: Duration = 3.seconds
+) {
+    var restoreActionRemain by remember { mutableStateOf(defaultTimerRestoreActionTimeout) }
+
+    LaunchedEffect(restoreActionRemain) {
+        if (restoreActionRemain == Duration.ZERO || restoreActionRemain.isNegative()) {
+            onTimerClear()
+        } else {
+            1.seconds.also { delayUnit ->
+                delay(delayUnit)
+                restoreActionRemain -= delayUnit
+            }
+        }
+    }
+
+    Card(
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+        colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.errorContainer)
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Text(
+                text = "${restoreActionRemain.inWholeSeconds}",
+                style = MaterialTheme.typography.titleMedium
+            )
+            Spacer(modifier = Modifier.padding(vertical = 6.dp))
+
+            Row {
+                TextButton(
+                    onClick = onTimerRestore,
+                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.surfaceTint)
+                ) {
+                    Text(text = stringResource(R.string.timer_cancelled_state_restore_message))
+                    Spacer(Modifier.padding(horizontal = 6.dp))
+                    Icon(Icons.Rounded.Refresh, "restore timer")
+                }
+
+                Spacer(Modifier.padding(horizontal = 16.dp))
+
+                IconButton(onClick = onTimerClear) {
+                    Icon(Icons.Rounded.Clear, "clear timer")
+                }
+            }
+        }
+    }
+}
+
 
 @Composable
 fun CoinMiningAnimation() {
@@ -174,34 +249,47 @@ fun TimerText(leftDuration: Duration) {
     }
 }
 
-private fun getStateMessage(timer: TimerState, action: Action, context: Context) = when (timer) {
+@Composable
+private fun rememberTimerHeaderStringId(timerState: TimerState, action: Action) = remember(
+    timerState::class, action
+) { getTimerHeaderStringId(timerState, action) }
+
+
+@StringRes
+private fun getTimerHeaderStringId(timer: TimerState, action: Action): Int = when (timer) {
     is TimerState.TimerRunning -> when (action) {
         is Action.Work -> listOf(
-            context.getString(R.string.timer_running_state_header_1),
-            context.getString(R.string.timer_running_state_header_2),
-            context.getString(R.string.timer_running_state_header_3),
-            context.getString(R.string.timer_running_state_header_4),
+            R.string.timer_running_state_header_1,
+            R.string.timer_running_state_header_2,
+            R.string.timer_running_state_header_3,
+            R.string.timer_running_state_header_4,
         ).random()
 
         is Action.Rest -> listOf(
-            context.getString(R.string.timer_relaxing_state_header_1),
-            context.getString(R.string.timer_relaxing_state_header_2),
-            context.getString(R.string.timer_relaxing_state_header_3),
-            context.getString(R.string.timer_relaxing_state_header_4),
+            R.string.timer_relaxing_state_header_1,
+            R.string.timer_relaxing_state_header_2,
+            R.string.timer_relaxing_state_header_3,
+            R.string.timer_relaxing_state_header_4,
         ).random()
 
         else -> throw IllegalStateException("Can't get title for Action $action")
     }
 
-    is TimerState.TimerPaused -> context.getString(R.string.timer_paused_state_header)
+    is TimerState.TimerPaused -> R.string.timer_paused_state_header
 
-    is TimerState.TimerNotInitiated -> context.getString(R.string.timer_setup_state_header)
-    else -> "ToDo state header"
+    is TimerState.TimerCancelled -> R.string.timer_cancelled_state_header
+
+    is TimerState.TimerNotInitiated -> R.string.timer_setup_state_header
+    else -> TODO("state message")
 }
 
 
 private val previewTimerSurfaceStateRunning =
     TimerState.TimerRunning(150.seconds) to Action.Work(180.seconds, "Study")
+
+private val previewTimerSurfaceStateCancelled =
+    TimerState.TimerCancelled(150.seconds) to Action.Work(180.seconds, "Study")
+
 
 @Composable
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
@@ -224,6 +312,28 @@ fun PreviewTimerSurfaceDark() {
         }
     }
 }
+
+
+@Composable
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+private fun PreviewTimerCancelledCardLight() {
+    ProductivityTheme(darkTheme = true) {
+        Surface {
+            TimerCancelledCard()
+        }
+    }
+}
+
+@Composable
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
+fun PreviewTimerCancelledCardDark() {
+    ProductivityTheme {
+        Surface {
+            TimerCancelledCard()
+        }
+    }
+}
+
 
 @Composable
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)

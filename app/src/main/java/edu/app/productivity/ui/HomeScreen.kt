@@ -42,7 +42,9 @@ fun HomeScreen() {
                 while (true) {
                     if (this@LaunchedEffect.isActive) {
                         delay(1.seconds)
-                        timerState = timerState.countdown()
+                        if (timerState.isRunning)
+                            timerState = timerState.countdown()
+                        else return@launch
                     }
                 }
             }
@@ -65,6 +67,8 @@ fun HomeScreen() {
             onTimerPause = { timerState = timerState.pause() },
             onTimerResume = { timerState = timerState.resume() },
             onTimerCancel = { timerState = timerState.cancel() },
+            onTimerClear = { timerState = TimerState.TimerNotInitiated },
+            onTimerRestore = { timerState = TimerState.TimerRunning(timerState.remaining) },
         )
     }
 }

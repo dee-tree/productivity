@@ -15,6 +15,9 @@
     <string name="timer_setup_state_header">Set up your plan</string>
 
     <string name="cancel_timer">Cancel program</string>
+    <string name="timer_cancelled_state_header">Timer was cancelled</string>
+    <string name="timer_cancelled_state_restore_message">Restore program</string>
+    <string name="timer_cancelled_state_clear_message">OK</string>
 
     <string name="single_shot_timer_plan_setup_action">Single shot timer</string>
     <string name="single_shot_timer_plan_setup_header">Set time you need to work</string>

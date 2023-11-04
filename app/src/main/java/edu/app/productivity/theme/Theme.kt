@@ -24,7 +24,10 @@ private val DarkColorScheme = darkColorScheme(
     onSurface = CornSilk,
     surfaceVariant = Russet,
     onSurfaceVariant = CornSilk,
-    outline = Buff
+    outline = Buff,
+    errorContainer = CaputMortuum,
+    onErrorContainer = CornSilk,
+    surfaceTint = TeaGreen
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -39,6 +42,9 @@ private val LightColorScheme = lightColorScheme(
     surfaceVariant = Beige,
     onSurfaceVariant = Russet,
     outline = Buff,
+    errorContainer = Cordovan,
+    onErrorContainer = CornSilk,
+    surfaceTint = TeaGreen
 )
 
 @Composable
