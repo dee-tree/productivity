@@ -37,7 +37,15 @@ fun PreferencesScreen(
             textAlign = TextAlign.Start
         )
 
+        Spacer(Modifier.padding(16.dp))
 
+        Switch(
+            label = stringResource(R.string.preferences_preference_setup_duration_dialing),
+            state = preferences.timerSetupIsDial,
+            onStateChange = {
+                viewModel.updatePreferences(preferences.copy(timerSetupIsDial = it))
+            }
+        )
     }
 }
 
