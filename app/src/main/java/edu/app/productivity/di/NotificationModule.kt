@@ -24,7 +24,8 @@ object NotificationModule {
         return NotificationCompat.Builder(context, TimerService.NOTIFICATION_CHANNEL_ID)
             .setContentTitle(context.getString(R.string.app_name))
             .setContentText("")
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.drawable.ic_timer_notification)
+            .setColor(0xFAEDCD)
             .setOngoing(true)
             .addAction(0, "", null) // for pause and resume
             .addAction(
