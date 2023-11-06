@@ -25,4 +25,14 @@
     <string name="timer_setup_confirm">Set up</string>
     <string name="timer_setup_activity_type">Activity</string>
 
+
+    <string name="timer_notification_paused_header">Timer is on pause</string>
+    <string name="timer_notification_completed_header">Completed</string>
+    <string name="timer_notification_cancelled_header">Timer cancelled…</string>
+    <string name="timer_notification_running_rest_header">Have a rest</string>
+    <string name="timer_notification_running_default_activity_header">Do your best</string>
+    <string name="timer_notification_remaining">Remaining %1$d minutes : %2$d seconds</string>
+    <string name="timer_notification_action_pause">Pause</string>
+    <string name="timer_notification_action_resume">Resume</string>
+    <string name="timer_notification_action_cancel">Cancel</string>
 </resources>

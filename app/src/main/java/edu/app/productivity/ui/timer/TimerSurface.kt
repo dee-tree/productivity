@@ -1,13 +1,22 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 
 package edu.app.productivity.ui.timer
 
 
 import android.content.res.Configuration
 import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,7 +27,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Clear
-import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -70,7 +78,6 @@ fun TimerSurface(
     defaultTimerRestoreActionTimeout: Duration = 3.seconds
 ) {
     val stateTitleId = rememberTimerHeaderStringId(timerState, action)
-    val stateTitle = stringResource(stateTitleId)
 
     val scope = rememberCoroutineScope()
 
@@ -79,12 +86,19 @@ fun TimerSurface(
 
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(
-            style = Typography.headlineMedium,
-            text = stateTitle,
-            color = MaterialTheme.colorScheme.onBackground,
-            textAlign = TextAlign.Center
-        )
+        AnimatedContent(
+            targetState = stateTitleId,
+            transitionSpec = { animatedVerticalTransition().using(SizeTransform(clip = false)) },
+            contentAlignment = Alignment.Center,
+            label = "Title animation"
+        ) { target ->
+            Text(
+                style = Typography.headlineMedium,
+                text = stringResource(target),
+                color = MaterialTheme.colorScheme.onBackground,
+                textAlign = TextAlign.Center
+            )
+        }
 
         Spacer(modifier = Modifier.padding(32.dp))
 
@@ -117,7 +131,6 @@ fun TimerSurface(
 
             AnimatedVisibility(timerState.isRunning || timerState.isPaused) {
                 Row {
-
                     TextButton(
                         onClick = onTimerCancel,
                         colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onBackground)
@@ -127,16 +140,15 @@ fun TimerSurface(
 
                     Spacer(modifier = Modifier.padding(horizontal = 6.dp))
 
-
                     IconButton(onClick = if (timerState.isRunning) onTimerPause else onTimerResume) {
                         Crossfade(targetState = timerState.isRunning, label = "") { running ->
-                            if (running)
-                                Icon(
-                                    painterResource(R.drawable.round_pause_24),
-                                    contentDescription = "pause"
-                                )
-                            else
-                                Icon(Icons.Rounded.PlayArrow, contentDescription = "resume")
+                            Icon(
+                                painterResource(
+                                    if (running) R.drawable.round_pause_24
+                                    else R.drawable.round_play_arrow_24
+                                ),
+                                contentDescription = if (running) "pause" else "resume"
+                            )
                         }
                     }
                 }
@@ -238,14 +250,40 @@ fun TimerText(leftDuration: Duration) {
             contentColor = MaterialTheme.colorScheme.onBackground
         )
     ) {
-        Text(
-            text = "${leftDuration.inWholeMinutes}:${leftDuration.inWholeSeconds % 60}",
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.displayLarge,
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .width(256.dp)
                 .padding(vertical = 16.dp)
-        )
+        ) {
+            // Minutes
+            AnimatedTimerText(leftDuration.inWholeMinutes)
+            Text(
+                text = ":", textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.displayLarge,
+            )
+            // Seconds
+            AnimatedTimerText(leftDuration.inWholeSeconds % 60)
+        }
+
+    }
+}
+
+@Composable
+private fun AnimatedTimerText(units: Long) {
+    AnimatedContent(
+        targetState = units,
+        transitionSpec = { animatedVerticalTransition().using(SizeTransform(clip = false)) },
+        contentAlignment = Alignment.Center,
+        label = "Timer animation"
+    ) { units ->
+        Text(
+            text = String.format("%2d", units),
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.displayLarge,
+
+            )
     }
 }
 
@@ -282,6 +320,11 @@ private fun getTimerHeaderStringId(timer: TimerState, action: Action): Int = whe
     is TimerState.TimerNotInitiated -> R.string.timer_setup_state_header
     else -> TODO("state message")
 }
+
+
+private fun animatedVerticalTransition() =
+    slideInVertically { height -> height } + fadeIn() togetherWith
+            slideOutVertically { height -> -height } + fadeOut()
 
 
 private val previewTimerSurfaceStateRunning =
