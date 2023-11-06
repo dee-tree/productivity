@@ -13,6 +13,8 @@
 
     <string name="timer_paused_state_header">Timer is paused, just continue</string>
     <string name="timer_setup_state_header">Set up your plan</string>
+    <string name="timer_completed_state_header">Step completed! Move on</string>
+    <string name="timer_dots">…</string>
 
     <string name="cancel_timer">Cancel program</string>
     <string name="timer_cancelled_state_header">Timer was cancelled</string>
@@ -20,7 +22,8 @@
     <string name="timer_cancelled_state_clear_message">OK</string>
 
     <string name="single_shot_timer_plan_setup_action">Single shot timer</string>
-    <string name="single_shot_timer_plan_setup_header">Set time you need to work</string>
+    <string name="single_shot_timer_plan_setup_header">Set up time you need</string>
+    <string name="single_shot_timer_rest_select">Add some rest to you</string>
 
     <string name="timer_setup_confirm">Set up</string>
     <string name="timer_setup_activity_type">Activity</string>
@@ -39,4 +42,11 @@
     <string name="preferences_header">Your preferences</string>
     <string name="preferences_preference_setup_duration_dialing">Setup duration via dial</string>
     <string name="preferences_preference_theme">App theme</string>
+
+
+    <string name="action_work_title">Work</string>
+    <string name="action_rest_title">Rest</string>
+    <string name="action_work_default_activity">Work-time</string>
+    <string name="action_rest">Rest-time</string>
+    <string name="action_duration">%1$d minutes, %2$d seconds</string>
 </resources>

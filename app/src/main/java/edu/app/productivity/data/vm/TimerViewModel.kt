@@ -23,8 +23,8 @@ class TimerViewModel @Inject constructor(private val repository: TimerRepository
     override val timerState: StateFlow<TimerState>
         get() = _timerState
 
-    private var _action = MutableStateFlow<Action>(Action.NotInitiatedAction)
-    val action: StateFlow<Action>
+    private var _action = MutableStateFlow<List<Action>>(listOf(Action.NotInitiatedAction))
+    val actions: StateFlow<List<Action>>
         get() = _action
 
     init {
@@ -37,7 +37,7 @@ class TimerViewModel @Inject constructor(private val repository: TimerRepository
                 }
 
                 launch {
-                    repository.action.collect {
+                    repository.actions.collect {
                         _action.emit(it)
                     }
                 }
@@ -54,6 +54,12 @@ class TimerViewModel @Inject constructor(private val repository: TimerRepository
     fun createAction(newAction: Action) {
         viewModelScope.launch {
             repository.createNewAction(newAction)
+        }
+    }
+
+    fun createActions(newActions: List<Action>) {
+        viewModelScope.launch {
+            repository.createNewActions(newActions)
         }
     }
 

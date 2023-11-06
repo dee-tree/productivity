@@ -16,9 +16,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.consumeWindowInsets
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -84,13 +82,11 @@ class MainActivity : ComponentActivity() {
                             onStatisticsClick = { navController.navigateSingleTop(Destination.StatisticsScreen) }
                         )
                     },
-                    modifier = Modifier.systemBarsPadding()
                 ) { innerPadding ->
                     Column(
                         modifier = Modifier
                             .consumeWindowInsets(innerPadding)
                             .padding(innerPadding)
-                            .imePadding(),
                     ) {
                         NavigationGraph(navController)
                     }

@@ -8,6 +8,7 @@ sealed class TimerState(open val remaining: Duration) {
     open val isRunning: Boolean = false
     open val isPaused: Boolean = false
     open val isCancelled: Boolean = false
+    open val isCompleted: Boolean = false
 
     open fun countdown(): TimerState = throw IllegalStateException("Countdown is not implemented")
 
@@ -29,11 +30,15 @@ sealed class TimerState(open val remaining: Duration) {
     data class TimerRunning(override val remaining: Duration) : TimerState(remaining) {
         override val isRunning: Boolean = true
 
-        override fun countdown(): TimerState = TimerRunning(remaining - 1.seconds)
+        override fun countdown() = if (remaining.inWholeSeconds == 1L || remaining.isNegative())
+            TimerCompleted else TimerRunning(remaining - 1.seconds)
+
         override fun pause(): TimerPaused = TimerPaused(remaining)
     }
 
-    object TimerCompleted : TimerState(Duration.ZERO)
+    object TimerCompleted : TimerState(Duration.ZERO) {
+        override val isCompleted: Boolean = true
+    }
 
     data class TimerPaused(
         override val remaining: Duration,

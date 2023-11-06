@@ -24,7 +24,7 @@ fun HomeScreen(
 ) {
     val timerState by timerViewModel.timerState.collectAsStateWithLifecycle()
 
-    val action by timerViewModel.action.collectAsStateWithLifecycle()
+    val actions by timerViewModel.actions.collectAsStateWithLifecycle()
 
     val ctx = LocalContext.current
 
@@ -36,10 +36,10 @@ fun HomeScreen(
     ) {
         TimerSurface(
             timerState = timerState,
-            action = action,
+            actions = actions,
             onSetSingleShotTimer = {
-                timerViewModel.createAction(it)
-                timerViewModel.start(ctx, it.duration)
+                timerViewModel.createActions(it)
+                timerViewModel.start(ctx, it.first().duration)
             },
             onTimerPause = { timerViewModel.pause(ctx) },
             onTimerResume = { timerViewModel.resume(ctx) },

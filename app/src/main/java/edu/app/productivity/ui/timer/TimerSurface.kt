@@ -69,8 +69,8 @@ import kotlin.time.Duration.Companion.seconds
 @Composable
 fun TimerSurface(
     timerState: TimerState,
-    action: Action,
-    onSetSingleShotTimer: (Action) -> Unit = {},
+    actions: List<Action>,
+    onSetSingleShotTimer: (List<Action>) -> Unit = {},
     onTimerPause: () -> Unit = {},
     onTimerCancel: () -> Unit = {},
     onTimerRestore: () -> Unit = {},
@@ -78,11 +78,11 @@ fun TimerSurface(
     onTimerClear: () -> Unit = {},
     defaultTimerRestoreActionTimeout: Duration = 3.seconds
 ) {
-    val stateTitleId = rememberTimerHeaderStringId(timerState, action)
+    val stateTitleId = rememberTimerHeaderStringId(timerState, actions.first())
 
     val scope = rememberCoroutineScope()
 
-    val singleShotTimerSheetState = rememberModalBottomSheetState()
+    val singleShotTimerSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var showSingleShotTimerSheet by remember { mutableStateOf(false) }
 
 
@@ -163,7 +163,6 @@ fun TimerSurface(
         }
 
     }
-
 
     if (showSingleShotTimerSheet) {
         SingleShotTimerPlanSheet(
@@ -315,7 +314,7 @@ private fun getTimerHeaderStringId(timer: TimerState, action: Action): Int = whe
             R.string.timer_relaxing_state_header_4,
         ).random()
 
-        else -> throw IllegalStateException("Can't get title for Action $action")
+        else -> R.string.timer_dots
     }
 
     is TimerState.TimerPaused -> R.string.timer_paused_state_header
@@ -323,7 +322,8 @@ private fun getTimerHeaderStringId(timer: TimerState, action: Action): Int = whe
     is TimerState.TimerCancelled -> R.string.timer_cancelled_state_header
 
     is TimerState.TimerNotInitiated -> R.string.timer_setup_state_header
-    else -> TODO("state message")
+
+    is TimerState.TimerCompleted -> R.string.timer_completed_state_header
 }
 
 
@@ -335,10 +335,10 @@ private val previewTimerSurfaceStateNotInitiated =
     TimerState.TimerNotInitiated to Action.NotInitiatedAction
 
 private val previewTimerSurfaceStateRunning =
-    TimerState.TimerRunning(150.seconds) to Action.Work(180.seconds, "Study")
+    TimerState.TimerRunning(150.seconds) to listOf(Action.Work(180.seconds, "Study"))
 
 private val previewTimerSurfaceStateCancelled =
-    TimerState.TimerCancelled(150.seconds) to Action.Work(180.seconds, "Study")
+    TimerState.TimerCancelled(150.seconds) to listOf(Action.Work(180.seconds, "Study"))
 
 
 @Composable

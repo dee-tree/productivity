@@ -131,6 +131,22 @@ class TimerService : LifecycleService() {
                         repository.updateState(internalState)
 
                         updateNotification(internalState)
+
+                        if (internalState.isCompleted) {
+                            TODO("More precise complete handle")
+                            delay(1.seconds)
+                            val actions = repository.actions.value
+                            val newActions =
+                                if (actions.size < 2) listOf(Action.NotInitiatedAction)
+                                else actions.drop(1)
+
+                            repository.createNewActions(newActions)
+
+                            triggerAction(this@TimerService, TimerActions.START) {
+                                setDuration(newActions.first().duration)
+                            }
+                        }
+
                     } else {
                         Log.d(TAG, "Exit from timer's ticks due to external control");
                         return@launch
@@ -148,7 +164,7 @@ class TimerService : LifecycleService() {
 
         val contentTitle = when (state) {
             is TimerState.TimerRunning -> {
-                val action = repository.action.value
+                val action = repository.actions.value.first()
                 val activityName = (action as? Action.Work)?.activityName
 
                 when {
