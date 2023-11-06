@@ -43,7 +43,10 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import edu.app.productivity.R
+import edu.app.productivity.data.vm.PreferencesViewModel
 import edu.app.productivity.domain.Action
 import edu.app.productivity.theme.ProductivityTheme
 import kotlinx.coroutines.launch
@@ -62,13 +65,16 @@ fun SingleShotTimerPlanSheet(
 
 @Composable
 fun SingleShotTimerPlanSheetContent(
-    onPlanSelected: (Action) -> Unit = {}
+    onPlanSelected: (Action) -> Unit = {},
+    preferencesViewModel: PreferencesViewModel = hiltViewModel()
 ) {
     val timePickerState = rememberTimePickerState(initialMinute = 30, is24Hour = true)
     var activityName by rememberSaveable { mutableStateOf("") }
 
     val bringIntoViewRequester = remember { BringIntoViewRequester() }
     val coroutineScope = rememberCoroutineScope()
+    
+    val preferences by preferencesViewModel.preferences.collectAsStateWithLifecycle()
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -85,7 +91,8 @@ fun SingleShotTimerPlanSheetContent(
         Spacer(modifier = Modifier.padding(vertical = 16.dp))
 
         DurationPicker(
-            state = timePickerState
+            state = timePickerState,
+            dial = preferences.timerSetupIsDial
         )
 
         Spacer(modifier = Modifier.padding(vertical = 16.dp))

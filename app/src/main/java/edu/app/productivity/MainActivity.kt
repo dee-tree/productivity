@@ -27,7 +27,9 @@ import androidx.core.app.ActivityCompat
 import androidx.core.view.WindowCompat
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
+import edu.app.productivity.navigation.Destination
 import edu.app.productivity.navigation.NavigationGraph
+import edu.app.productivity.navigation.navigateSingleTop
 import edu.app.productivity.service.TimerService
 import edu.app.productivity.theme.ProductivityTheme
 import edu.app.productivity.ui.bottom.BottomBar
@@ -60,7 +62,13 @@ class MainActivity : ComponentActivity() {
             ProductivityTheme {
                 val navController = rememberNavController()
                 Scaffold(
-                    bottomBar = { BottomBar() },
+                    bottomBar = {
+                        BottomBar(
+                            onPreferencesClick = { navController.navigateSingleTop(Destination.PreferencesScreen) },
+                            onHomeCLick = { navController.navigateSingleTop(Destination.HomeScreen) },
+                            onStatisticsClick = { navController.navigateSingleTop(Destination.StatisticsScreen) }
+                        )
+                    },
                     modifier = Modifier.systemBarsPadding()
                 ) { innerPadding ->
                     Column(

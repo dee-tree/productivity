@@ -35,4 +35,7 @@
     <string name="timer_notification_action_pause">Pause</string>
     <string name="timer_notification_action_resume">Resume</string>
     <string name="timer_notification_action_cancel">Cancel</string>
+
+    <string name="preferences_header">Your preferences</string>
+    <string name="preferences_preference_setup_duration_dialing">Setup duration via dial</string>
 </resources>

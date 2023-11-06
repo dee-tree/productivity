@@ -5,5 +5,5 @@ sealed class Destination(
 ) {
     object HomeScreen: Destination("home_screen")
     object StatisticsScreen: Destination("statistics_screen")
-    object MenuScreen: Destination("menu_screen")
+    object PreferencesScreen: Destination("preferences_screen")
 }

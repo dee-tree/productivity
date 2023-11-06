@@ -18,13 +18,13 @@ import edu.app.productivity.theme.ProductivityTheme
 
 @Composable
 fun BottomBar(
-    onMenuClick: () -> Unit = {},
+    onPreferencesClick: () -> Unit = {},
     onStatisticsClick: () -> Unit = {},
     onHomeCLick: () -> Unit = {}
 ) {
     BottomAppBar(
         actions = {
-            IconButton(onClick = onMenuClick) {
+            IconButton(onClick = onPreferencesClick) {
                 Icon(Icons.Rounded.Menu, contentDescription = "Menu")
             }
             IconButton(onClick = onStatisticsClick) {
