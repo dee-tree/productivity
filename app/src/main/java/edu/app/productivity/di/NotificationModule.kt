@@ -9,7 +9,10 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ServiceComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ServiceScoped
+import edu.app.productivity.R
 import edu.app.productivity.service.TimerService
+import edu.app.productivity.service.TimerService.Companion.cancelPendingIntent
+import edu.app.productivity.service.TimerService.Companion.clickContentPendingEvent
 
 @Module
 @InstallIn(ServiceComponent::class)
@@ -19,14 +22,17 @@ object NotificationModule {
     @Provides
     fun provideNotificationBuilder(@ApplicationContext context: Context): NotificationCompat.Builder {
         return NotificationCompat.Builder(context, TimerService.NOTIFICATION_CHANNEL_ID)
-            .setContentTitle("Stopwatch")
-            .setContentText("00:00:00")
-            //.setSmallIcon(R.drawable.ic_baseline_timer_24) // TODO: set app icon
+            .setContentTitle(context.getString(R.string.app_name))
+            .setContentText("")
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setOngoing(true)
-//            .addAction(0, "", ServiceHelper.stopPendingIntent(context))
-//            .addAction(0, "Cancel", ServiceHelper.cancelPendingIntent(context))
-//            .setContentIntent(ServiceHelper.clickPendingIntent(context))
-
+            .addAction(0, "", null) // for pause and resume
+            .addAction(
+                0,
+                context.getString(R.string.timer_notification_action_cancel),
+                context.cancelPendingIntent()
+            )
+            .setContentIntent(context.clickContentPendingEvent())
     }
 
     @ServiceScoped

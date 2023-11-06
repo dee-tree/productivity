@@ -16,6 +16,9 @@ sealed class TimerState(open val remaining: Duration) {
     open fun resume(): TimerRunning =
         throw IllegalStateException("Timer can't continue at this state")
 
+    open fun restore(): TimerRunning = TimerRunning(remaining)
+
+
     open fun complete(): TimerCompleted =
         throw IllegalStateException("Timer can't complete at this state")
 

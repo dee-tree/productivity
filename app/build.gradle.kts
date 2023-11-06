@@ -56,17 +56,20 @@ android {
 
 val retrofitVersion = "2.9.0"
 val coroutinesVersion = "1.6.4"
-val hiltVersion = "2.44"
-val hiltNavigationComposeVersion = "1.0.0"
-val lifecycleVersion = "2.6.1"
+val hiltVersion = "2.48"
+val hiltNavigationComposeVersion = "1.1.0"
+val lifecycleVersion = "2.6.2"
 
 dependencies {
 
     implementation("androidx.core:core-ktx:1.9.0")
     // lifecycle
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:$lifecycleVersion")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycleVersion")
+    implementation("androidx.lifecycle:lifecycle-service:$lifecycleVersion")
+
 
     implementation("androidx.activity:activity-compose:1.7.2")
     implementation(platform("androidx.compose:compose-bom:2023.10.01"))
