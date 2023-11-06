@@ -12,6 +12,7 @@ import android.os.IBinder
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -25,8 +26,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.core.app.ActivityCompat
 import androidx.core.view.WindowCompat
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
+import edu.app.productivity.data.Preferences
+import edu.app.productivity.data.vm.PreferencesViewModel
 import edu.app.productivity.navigation.Destination
 import edu.app.productivity.navigation.NavigationGraph
 import edu.app.productivity.navigation.navigateSingleTop
@@ -59,7 +65,16 @@ class MainActivity : ComponentActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         setContent {
-            ProductivityTheme {
+            val preferencesViewModel = hiltViewModel<PreferencesViewModel>()
+            val preferences by preferencesViewModel.preferences.collectAsStateWithLifecycle(
+                minActiveState = Lifecycle.State.STARTED
+            )
+
+            val isDarkTheme = preferences.theme == Preferences.Themes.SYSTEM
+                    && isSystemInDarkTheme()
+                    || preferences.theme == Preferences.Themes.DARK
+
+            ProductivityTheme(darkTheme = isDarkTheme) {
                 val navController = rememberNavController()
                 Scaffold(
                     bottomBar = {

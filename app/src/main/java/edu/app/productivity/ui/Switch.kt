@@ -11,6 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -26,10 +27,11 @@ fun Switch(label: String, state: Boolean, onStateChange: (Boolean) -> Unit = {})
                 onClick = {
                     onStateChange(!state)
                 }
-            ).padding(8.dp),
+            )
+            .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = label)
+        Text(text = label, textAlign = TextAlign.Start)
         Spacer(modifier = Modifier.padding(start = 8.dp))
         androidx.compose.material3.Switch(
             checked = state,
