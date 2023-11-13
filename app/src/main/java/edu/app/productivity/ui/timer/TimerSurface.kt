@@ -78,7 +78,7 @@ fun TimerSurface(
     onTimerClear: () -> Unit = {},
     defaultTimerRestoreActionTimeout: Duration = 3.seconds
 ) {
-    val stateTitleId = rememberTimerHeaderStringId(timerState, actions.first())
+    val stateTitleId = rememberTimerHeaderStringId(timerState, actions.firstOrNull())
 
     val scope = rememberCoroutineScope()
 
@@ -121,6 +121,14 @@ fun TimerSurface(
                 Text(text = stringResource(R.string.single_shot_timer_plan_setup_action))
             }
         }
+
+        AnimatedVisibility(visible = timerState is TimerState.TimerCompleted && actions.isEmpty()) {
+            // actions chain is completed
+            OutlinedButton(onClick = { onTimerClear() }) {
+                Text(text = stringResource(R.string.timer_all_actions_completed_state_action_ok))
+            }
+        }
+
 
         AnimatedVisibility(visible = timerState is TimerState.TimerCancelled) {
             TimerCancelledCard(
@@ -283,7 +291,7 @@ private fun AnimatedTimerText(units: Long) {
         label = "Timer animation"
     ) { units ->
         Text(
-            text = String.format("%2d", units),
+            text = String.format("%02d", units),
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.displayLarge,
 
@@ -292,13 +300,13 @@ private fun AnimatedTimerText(units: Long) {
 }
 
 @Composable
-private fun rememberTimerHeaderStringId(timerState: TimerState, action: Action) = remember(
+private fun rememberTimerHeaderStringId(timerState: TimerState, action: Action? = null) = remember(
     timerState::class, action
 ) { getTimerHeaderStringId(timerState, action) }
 
 
 @StringRes
-private fun getTimerHeaderStringId(timer: TimerState, action: Action): Int = when (timer) {
+private fun getTimerHeaderStringId(timer: TimerState, action: Action? = null): Int = when (timer) {
     is TimerState.TimerRunning -> when (action) {
         is Action.Work -> listOf(
             R.string.timer_running_state_header_1,
@@ -323,7 +331,10 @@ private fun getTimerHeaderStringId(timer: TimerState, action: Action): Int = whe
 
     is TimerState.TimerNotInitiated -> R.string.timer_setup_state_header
 
-    is TimerState.TimerCompleted -> R.string.timer_completed_state_header
+    is TimerState.TimerCompleted -> {
+        if (action == null) R.string.timer_all_actions_completed_state_header
+        else R.string.timer_completed_state_header
+    }
 }
 
 

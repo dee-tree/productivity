@@ -101,13 +101,17 @@ fun SingleShotTimerPlanSheetContent(
     onPlanSelected: (List<Action>) -> Unit = {},
     sheetState: SheetState = rememberModalBottomSheetState(),
     timerSetupIsDial: Boolean = PreferencesRepository.TIMER_SETUP_IS_DIAL_DEFAULT,
+    defaultWorkMinutes: Int = 30,
+    defaultRestMinutes: Int = 10
 ) {
     var actions by rememberSaveable { mutableStateOf<List<Action>>(emptyList()) }
     var isWork by rememberSaveable { mutableStateOf(true) } // first task is work always
 
     val timePickerState = rememberTimePickerState(
-        initialMinute = if (isWork) 30 else 10, is24Hour = true
+        initialMinute = if (isWork) defaultWorkMinutes else defaultRestMinutes,
+        is24Hour = true
     )
+
     var activityName by rememberSaveable { mutableStateOf("") }
 
     val actionsListState = rememberLazyListState()
@@ -188,14 +192,16 @@ fun SingleShotTimerPlanSheetContent(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             TextButton(
+                enabled = timePickerState.duration.isPositive(),
                 onClick = {
                     actions = actions +
                             if (isWork) Action.Work(timePickerState.duration, activityName)
                             else Action.Rest(timePickerState.duration)
                     isWork = !isWork
-                    coroutineScope.launch {
-                        sheetState.expand()
-                    }
+                    // with "manual" expand bottomsheet is hiding after 2 actions added
+//                    coroutineScope.launch {
+//                        sheetState.expand()
+//                    }
                 },
                 modifier = Modifier.fillMaxWidth(0.65f)
             ) {
@@ -203,6 +209,7 @@ fun SingleShotTimerPlanSheetContent(
             }
 
             TextButton(
+                enabled = actions.isNotEmpty() || timePickerState.duration.isPositive(),
                 onClick = {
                     actions =
                         actions + if (isWork) Action.Work(timePickerState.duration, activityName)

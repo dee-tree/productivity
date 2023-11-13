@@ -46,10 +46,19 @@ class TimerService : LifecycleService() {
 
     private var timerJob: Job? = null
 
+    var isBound: Boolean = false
+    private set
+
     override fun onBind(intent: Intent): IBinder {
         super.onBind(intent)
         Log.d(TAG, "Timer service is bound")
+        isBound = true
         return binder
+    }
+
+    override fun onUnbind(intent: Intent?): Boolean {
+        isBound = false
+        return super.onUnbind(intent)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -74,6 +83,10 @@ class TimerService : LifecycleService() {
                     internalState = internalState.cancel()
                 }
 
+                TimerActions.COMPLETE.name -> {
+                    // come here when internalState is already `TimerState.Completed`
+                }
+
                 else -> return super.onStartCommand(intent, flags, startId)
             }
 
@@ -92,6 +105,14 @@ class TimerService : LifecycleService() {
 
         when (newState) {
             TimerActions.START -> {
+                if (@Suppress("RestrictedApi") notificationBuilder.mActions.isEmpty()) {
+                    notificationBuilder.addAction(0, "", null) // for pause and resume
+                        .addAction(
+                            0,
+                            getString(R.string.timer_notification_action_cancel),
+                            cancelPendingIntent()
+                        )
+                }
                 setPauseResumeButton(isPause = true)
                 startService()
                 startTimer()
@@ -116,6 +137,36 @@ class TimerService : LifecycleService() {
                 }
                 stopService()
             }
+
+            TimerActions.COMPLETE -> {
+                notificationBuilder.clearActions()
+                updateNotification(internalState)
+                stopForeground(STOP_FOREGROUND_DETACH)
+                stopSelf()
+
+                lifecycleScope.launch {
+                    val actions = repository.actions.value
+
+                    if (actions.size > 1) {
+                        // action completed, but there are another planned actions
+                        delay(1.seconds)
+                        val newActions = actions.drop(1)
+                        val currentAction = actions.first()
+                        repository.createNewActions(newActions)
+
+                        triggerAction(this@TimerService, TimerActions.START) {
+                            setDuration(currentAction.duration)
+                        }
+                    } else {
+                        // last action completed
+                        repository.createNewActions(emptyList())
+
+                        if (isBound) {
+                            stopService()
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -128,25 +179,13 @@ class TimerService : LifecycleService() {
                     delay(1.seconds)
                     if (internalState.isRunning) {
                         internalState = internalState.countdown()
-                        repository.updateState(internalState)
 
-                        updateNotification(internalState)
-
-                        if (internalState.isCompleted) {
-                            TODO("More precise complete handle")
-                            delay(1.seconds)
-                            val actions = repository.actions.value
-                            val newActions =
-                                if (actions.size < 2) listOf(Action.NotInitiatedAction)
-                                else actions.drop(1)
-
-                            repository.createNewActions(newActions)
-
-                            triggerAction(this@TimerService, TimerActions.START) {
-                                setDuration(newActions.first().duration)
-                            }
+                        if (internalState.isRunning) {
+                            repository.updateState(internalState)
+                            updateNotification(internalState)
+                        } else {
+                            triggerAction(this@TimerService, TimerActions.COMPLETE)
                         }
-
                     } else {
                         Log.d(TAG, "Exit from timer's ticks due to external control");
                         return@launch
@@ -180,11 +219,11 @@ class TimerService : LifecycleService() {
             else -> "Hiding notification..."
         }
 
-        val contentText = getString(
-            R.string.timer_notification_remaining,
+        val contentText = if (state != TimerState.TimerCompleted) getString(
+            R.string.timer_notification_remaining_content,
             state.remaining.inWholeMinutes,
             state.remaining.inWholeSeconds % 60
-        )
+        ) else getString(R.string.timer_notification_great_completed_content)
 
         notificationManager.notify(
             NOTIFICATION_ID,
@@ -233,13 +272,15 @@ class TimerService : LifecycleService() {
         notificationManager.createNotificationChannel(channel)
     }
 
-    private fun stopService() {
+    fun stopService() {
         notificationManager.cancel(NOTIFICATION_ID)
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
     }
 
-    enum class TimerActions { START, PAUSE, RESUME, CANCEL }
+    fun isCompleted() = internalState.isCompleted
+
+    enum class TimerActions { START, PAUSE, RESUME, CANCEL, COMPLETE }
 
     inner class TimerServiceBinder : Binder() {
         fun getService(): TimerService = this@TimerService

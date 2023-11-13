@@ -14,6 +14,8 @@
     <string name="timer_paused_state_header">Timer is paused, just continue</string>
     <string name="timer_setup_state_header">Set up your plan</string>
     <string name="timer_completed_state_header">Step completed! Move on</string>
+    <string name="timer_all_actions_completed_state_header">You worked great!</string>
+    <string name="timer_all_actions_completed_state_action_ok">Move on</string>
     <string name="timer_dots">…</string>
 
     <string name="cancel_timer">Cancel program</string>
@@ -34,7 +36,8 @@
     <string name="timer_notification_cancelled_header">Timer cancelled…</string>
     <string name="timer_notification_running_rest_header">Have a rest</string>
     <string name="timer_notification_running_default_activity_header">Do your best</string>
-    <string name="timer_notification_remaining">Remaining %1$d minutes : %2$d seconds</string>
+    <string name="timer_notification_remaining_content">Remaining %1$d minutes : %2$d seconds</string>
+    <string name="timer_notification_great_completed_content">You worked hard</string>
     <string name="timer_notification_action_pause">Pause</string>
     <string name="timer_notification_action_resume">Resume</string>
     <string name="timer_notification_action_cancel">Cancel</string>

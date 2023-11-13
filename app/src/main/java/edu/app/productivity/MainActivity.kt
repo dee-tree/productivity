@@ -68,6 +68,10 @@ class MainActivity : ComponentActivity() {
                 minActiveState = Lifecycle.State.STARTED
             )
 
+            if (isTimerServiceBound && timerService.isCompleted()) {
+                timerService.stopService()
+            }
+
             val isDarkTheme = preferences.theme == Preferences.Themes.SYSTEM
                     && isSystemInDarkTheme()
                     || preferences.theme == Preferences.Themes.DARK
