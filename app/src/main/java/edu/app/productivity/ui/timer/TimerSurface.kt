@@ -28,6 +28,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material.icons.rounded.Refresh
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -35,7 +36,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -52,6 +52,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -96,7 +97,8 @@ fun TimerSurface(
                 style = Typography.headlineMedium,
                 text = stringResource(target),
                 color = MaterialTheme.colorScheme.onBackground,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.SemiBold
             )
         }
 
@@ -112,7 +114,10 @@ fun TimerSurface(
         }
 
         AnimatedVisibility(visible = timerState is TimerState.TimerNotInitiated) {
-            OutlinedButton(onClick = { showSingleShotTimerSheet = true }) {
+            Button(
+                onClick = { showSingleShotTimerSheet = true },
+                modifier = Modifier.padding(top = 64.dp)
+            ) {
                 Text(text = stringResource(R.string.single_shot_timer_plan_setup_action))
             }
         }
@@ -326,6 +331,8 @@ private fun animatedVerticalTransition() =
     slideInVertically { height -> height } + fadeIn() togetherWith
             slideOutVertically { height -> -height } + fadeOut()
 
+private val previewTimerSurfaceStateNotInitiated =
+    TimerState.TimerNotInitiated to Action.NotInitiatedAction
 
 private val previewTimerSurfaceStateRunning =
     TimerState.TimerRunning(150.seconds) to Action.Work(180.seconds, "Study")
@@ -333,6 +340,28 @@ private val previewTimerSurfaceStateRunning =
 private val previewTimerSurfaceStateCancelled =
     TimerState.TimerCancelled(150.seconds) to Action.Work(180.seconds, "Study")
 
+
+@Composable
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
+private fun PreviewTimerSurfaceNotInitiatedLight() {
+    ProductivityTheme(darkTheme = false) {
+        Surface {
+            val (timer, action) = previewTimerSurfaceStateNotInitiated
+            TimerSurface(timer, action)
+        }
+    }
+}
+
+@Composable
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+private fun PreviewTimerSurfaceNotInitiatedDark() {
+    ProductivityTheme(darkTheme = true) {
+        Surface {
+            val (timer, action) = previewTimerSurfaceStateNotInitiated
+            TimerSurface(timer, action)
+        }
+    }
+}
 
 @Composable
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
