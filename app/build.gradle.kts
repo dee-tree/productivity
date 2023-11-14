@@ -57,6 +57,7 @@ val coroutinesVersion = "1.6.4"
 val hiltVersion = "2.48"
 val hiltNavigationComposeVersion = "1.1.0"
 val lifecycleVersion = "2.6.2"
+val junit5Version = "5.9.2"
 
 dependencies {
 
@@ -87,6 +88,9 @@ dependencies {
     implementation("androidx.hilt:hilt-navigation-compose:$hiltNavigationComposeVersion")
     kapt("com.google.dagger:hilt-android-compiler:$hiltVersion")
 
+    testImplementation("org.junit.jupiter:junit-jupiter-api:$junit5Version")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:$junit5Version")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junit5Version")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
@@ -98,4 +102,8 @@ dependencies {
 
 kapt {
     correctErrorTypes = true
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform() // Make all tests use JUnit 5
 }

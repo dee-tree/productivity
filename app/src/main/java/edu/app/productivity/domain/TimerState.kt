@@ -26,7 +26,7 @@ sealed class TimerState(open val remaining: Duration) {
     data class TimerRunning(override val remaining: Duration) : TimerState(remaining) {
         override val isRunning: Boolean = true
 
-        override fun countdown() = if (remaining.inWholeSeconds == 1L || remaining.isNegative())
+        override fun countdown() = if (remaining.inWholeSeconds <= 1L || remaining.isNegative())
             TimerCompleted else TimerRunning(remaining - 1.seconds)
 
         override fun pause(): TimerPaused = TimerPaused(remaining)
