@@ -36,6 +36,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -343,7 +344,7 @@ private fun animatedVerticalTransition() =
             slideOutVertically { height -> -height } + fadeOut()
 
 private val previewTimerSurfaceStateNotInitiated =
-    TimerState.TimerNotInitiated to Action.NotInitiatedAction
+    TimerState.TimerNotInitiated to listOf(Action.NotInitiatedAction)
 
 private val previewTimerSurfaceStateRunning =
     TimerState.TimerRunning(150.seconds) to listOf(Action.Work(180.seconds, "Study"))
