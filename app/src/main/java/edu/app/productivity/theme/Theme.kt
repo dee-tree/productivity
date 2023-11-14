@@ -21,13 +21,15 @@ private val DarkColorScheme = darkColorScheme(
     onBackground = CornSilk,
 //    surface = DarkGray,
     surface = CafeNoir,
-    onSurface = CornSilk,
+    onSurface = PapayaWhip,
     surfaceVariant = Russet,
     onSurfaceVariant = CornSilk,
     outline = Buff,
     errorContainer = CaputMortuum,
     onErrorContainer = CornSilk,
-    surfaceTint = TeaGreen
+    surfaceTint = TeaGreen,
+    primaryContainer = Russet,
+    onPrimaryContainer = CornSilk
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -37,14 +39,16 @@ private val LightColorScheme = lightColorScheme(
     onSecondary = CornSilk,
     background = PapayaWhip,
     onBackground = Russet,
-    surface = CornSilk,
+    surface = PapayaWhip,
     onSurface = Russet,
     surfaceVariant = Beige,
     onSurfaceVariant = Russet,
     outline = Buff,
     errorContainer = Cordovan,
     onErrorContainer = CornSilk,
-    surfaceTint = TeaGreen
+    surfaceTint = TeaGreen,
+    primaryContainer = Buff,
+    onPrimaryContainer = PapayaWhip
 )
 
 @Composable
