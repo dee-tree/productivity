@@ -1,15 +1,17 @@
 package edu.app.productivity.di
 
 import android.content.Context
-import androidx.datastore.core.DataStore
+import androidx.room.Room
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import edu.app.productivity.data.ActionHistoryRepository
 import edu.app.productivity.data.DataStoreManager
 import edu.app.productivity.data.PreferencesRepository
 import edu.app.productivity.data.TimerRepository
+import edu.app.productivity.data.db.AppDatabase
 import javax.inject.Singleton
 
 @Module
@@ -18,7 +20,11 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideTimerRepository() = TimerRepository()
+    fun provideTimerRepository(db: AppDatabase) = TimerRepository(db)
+
+    @Provides
+    @Singleton
+    fun provideActionHistoryRepository(db: AppDatabase) = ActionHistoryRepository(db)
 
     @Provides
     @Singleton
@@ -28,4 +34,14 @@ object AppModule {
     @Provides
     @Singleton
     fun provideDataStoreManager(@ApplicationContext ctx: Context) = DataStoreManager(ctx)
+
+    @Provides
+    @Singleton
+    fun provideDatabase(
+        @ApplicationContext ctx: Context
+    ) = Room.databaseBuilder(
+        ctx,
+        AppDatabase::class.java,
+        "productivity_app_db"
+    ).build()
 }

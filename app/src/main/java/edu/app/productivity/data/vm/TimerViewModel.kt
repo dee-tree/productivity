@@ -16,7 +16,9 @@ import javax.inject.Inject
 
 
 @HiltViewModel
-class TimerViewModel @Inject constructor(private val repository: TimerRepository) : ViewModel(),
+class TimerViewModel @Inject constructor(
+    private val repository: TimerRepository
+) : ViewModel(),
     TimerManager {
 
     private var _timerState = MutableStateFlow<TimerState>(TimerState.TimerNotInitiated)
@@ -31,15 +33,11 @@ class TimerViewModel @Inject constructor(private val repository: TimerRepository
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 launch {
-                    repository.timerState.collect {
-                        _timerState.emit(it)
-                    }
+                    repository.timerState.collect(_timerState)
                 }
 
                 launch {
-                    repository.actions.collect {
-                        _action.emit(it)
-                    }
+                    repository.actions.collect(_action)
                 }
             }
         }
