@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import edu.app.productivity.ui.HomeScreen
 import edu.app.productivity.ui.PreferencesScreen
+import edu.app.productivity.ui.StatisticsScreen
 
 @Composable
 fun NavigationGraph(navController: NavHostController) {
@@ -16,7 +17,7 @@ fun NavigationGraph(navController: NavHostController) {
         }
 
         composable(Destination.StatisticsScreen.route) {
-            // TODO: statistics
+            StatisticsScreen()
         }
 
         composable(Destination.PreferencesScreen.route) {

@@ -52,4 +52,14 @@
     <string name="action_work_default_activity">Work-time</string>
     <string name="action_rest">Rest-time</string>
     <string name="action_duration">%1$d minutes, %2$d seconds</string>
+
+    <string name="statistics_header">Statistics</string>
+    <string name="statistics_worked_hours_totally_title">Totally worked %.1f hours</string>
+    <string name="statistics_rest_hours_totally_title">Totally %.1f hours on rest</string>
+
+    <plurals name="statistics_for_days_header">
+        <item quantity="one">Statistics for the last day</item>
+        <item quantity="other">Statistics for last %d days</item>
+    </plurals>
+
 </resources>
