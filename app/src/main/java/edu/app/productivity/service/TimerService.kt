@@ -147,6 +147,9 @@ class TimerService : LifecycleService() {
                 lifecycleScope.launch {
                     val actions = repository.actions.value
 
+                    val completedAction = actions.first()
+                    repository.saveActionInHistory(completedAction)
+
                     if (actions.size > 1) {
                         // action completed, but there are another planned actions
                         delay(1.seconds)

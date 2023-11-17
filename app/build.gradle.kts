@@ -3,6 +3,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     kotlin("kapt")
     id("com.google.dagger.hilt.android")
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -43,7 +44,7 @@ android {
         jvmTarget = "1.8"
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.4.3"
+        kotlinCompilerExtensionVersion = "1.5.3"
     }
     packaging {
         resources {
@@ -54,9 +55,11 @@ android {
 
 val dataStoreVersion = "1.0.0"
 val coroutinesVersion = "1.6.4"
-val hiltVersion = "2.48"
+val hiltVersion = "2.48.1"
 val hiltNavigationComposeVersion = "1.1.0"
 val lifecycleVersion = "2.6.2"
+val roomVersion = "2.6.0"
+val vicoVersion = "1.12.0"
 val junit5Version = "5.9.2"
 val splashScreenVersion = "1.0.1"
 val composeBomVersion = "2023.10.01"
@@ -98,6 +101,17 @@ dependencies {
     implementation("com.google.dagger:hilt-android:$hiltVersion")
     implementation("androidx.hilt:hilt-navigation-compose:$hiltNavigationComposeVersion")
     kapt("com.google.dagger:hilt-android-compiler:$hiltVersion")
+
+    // room
+    implementation("androidx.room:room-runtime:$roomVersion")
+    annotationProcessor("androidx.room:room-compiler:$roomVersion")
+    ksp("androidx.room:room-compiler:$roomVersion")
+    implementation("androidx.room:room-ktx:$roomVersion")
+    testImplementation("androidx.room:room-testing:$roomVersion")
+
+    //  compose charts
+    implementation("com.patrykandpatrick.vico:compose-m3:$vicoVersion")
+    implementation("com.patrykandpatrick.vico:core:$vicoVersion")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junit5Version")
     testImplementation("org.junit.jupiter:junit-jupiter-params:$junit5Version")

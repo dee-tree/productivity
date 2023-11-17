@@ -26,9 +26,12 @@ class PreferencesRepository @Inject constructor(
     companion object {
         private val TimerSetupIsDialKey = booleanPreferencesKey("timer_setup_is_dial")
         private val ThemeKey = intPreferencesKey("theme")
+        val StatisticsForLastDaysKey = intPreferencesKey("statistics_for_last_days")
 
         const val TIMER_SETUP_IS_DIAL_DEFAULT = false
         val THEME_DEFAULT = Preferences.Themes.SYSTEM
+        const val STATISTICS_FOR_LAST_DAYS_DEFAULT = 7
+        val STATISTICS_FOR_LAST_DAYS_RANGE = 1..30
     }
 
 }

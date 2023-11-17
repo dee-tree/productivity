@@ -1,11 +1,19 @@
 package edu.app.productivity.data
 
+import edu.app.productivity.data.db.ActionEntity
+import edu.app.productivity.data.db.ActionHistoryEntity
+import edu.app.productivity.data.db.AppDatabase
 import edu.app.productivity.domain.Action
 import edu.app.productivity.domain.TimerState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import java.util.Date
+import javax.inject.Inject
 
-class TimerRepository {
+class TimerRepository @Inject constructor(val db: AppDatabase) {
+
+    private val dao by lazy { db.actionHistoryDao() }
+
     private val _timerState = MutableStateFlow<TimerState>(TimerState.TimerNotInitiated)
     val timerState: StateFlow<TimerState> get() = _timerState
 
@@ -22,6 +30,10 @@ class TimerRepository {
 
     suspend fun createNewActions(newActions: List<Action>) {
         _actions.emit(newActions)
+    }
+
+    suspend fun saveActionInHistory(action: Action) {
+        dao.insert(ActionHistoryEntity(Date(), ActionEntity.fromAction(action)))
     }
 
 
