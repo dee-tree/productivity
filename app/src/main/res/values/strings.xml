@@ -56,7 +56,9 @@
     <string name="statistics_header">Statistics</string>
     <string name="statistics_no_data_title">Here will be displayed your progress</string>
     <string name="statistics_worked_hours_totally_title">Totally worked %.1f hours</string>
+    <string name="statistics_worked_minutes_totally_title">Totally worked %d minutes</string>
     <string name="statistics_rest_hours_totally_title">Totally %.1f hours on rest</string>
+    <string name="statistics_rest_minutes_totally_title">Totally %d minutes on rest</string>
 
     <plurals name="statistics_for_days_header">
         <item quantity="one">Statistics for the last day</item>

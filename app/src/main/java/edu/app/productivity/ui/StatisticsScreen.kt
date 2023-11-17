@@ -62,8 +62,8 @@ import edu.app.productivity.theme.ProductivityTheme
 fun StatisticsScreen(
     viewModel: StatisticsViewModel = hiltViewModel()
 ) {
-    val totallyWorkedHours by viewModel.totallyWorkedHours.collectAsStateWithLifecycle()
-    val totallyRestHours by viewModel.totallyRestHours.collectAsStateWithLifecycle()
+    val totallyWorkedMinutes by viewModel.totallyWorkedMinutes.collectAsStateWithLifecycle()
+    val totallyRestMinutes by viewModel.totallyRestMinutes.collectAsStateWithLifecycle()
 
     val workActionsPerDays by viewModel.workActionsPerDays.collectAsStateWithLifecycle()
     val restActionsPerDays by viewModel.restActionsPerDays.collectAsStateWithLifecycle()
@@ -89,8 +89,8 @@ fun StatisticsScreen(
     }
 
     StatisticsScreenContent(
-        totallyWorkedHours = totallyWorkedHours,
-        totallyRestHours = totallyRestHours,
+        totallyWorkedMinutes = totallyWorkedMinutes,
+        totallyRestMinutes = totallyRestMinutes,
 
         workActionCountPerDays = workEventsCountPerDays,
         restActionCountPerDays = restEventsCountPerDays,
@@ -103,8 +103,8 @@ fun StatisticsScreen(
 @Composable
 fun StatisticsScreenContent(
     forLastDays: Int = 7,
-    totallyWorkedHours: Double = 0.0,
-    totallyRestHours: Double = 0.0,
+    totallyWorkedMinutes: Int = 0,
+    totallyRestMinutes: Int = 0,
 
     workActionCountPerDays: List<Int> = emptyList(),
     restActionCountPerDays: List<Int> = emptyList(),
@@ -141,13 +141,13 @@ fun StatisticsScreenContent(
 
         verticalSpacer()
 
-        AnimatedVisibility(visible = totallyWorkedHours == 0.0 && totallyRestHours == 0.0) {
+        AnimatedVisibility(visible = totallyWorkedMinutes == 0 && totallyRestMinutes == 0) {
             StatisticsPlaceholder()
         }
 
-        AnimatedVisibility(visible = totallyWorkedHours != 0.0 || totallyRestHours != 0.0) {
+        AnimatedVisibility(visible = totallyWorkedMinutes != 0 || totallyRestMinutes != 0) {
             Column {
-                TotallyHoursOnActionType()
+                TotallyHoursOnActionType(totallyWorkedMinutes, totallyRestMinutes)
 
                 verticalSpacer()
 
@@ -303,24 +303,29 @@ private fun chartLegend(
 
 @Composable
 fun TotallyHoursOnActionType(
-    totallyWorkedHours: Double = 0.0,
-    totallyRestHours: Double = 0.0
+    totallyWorkedMinutes: Int = 0,
+    totallyRestMinutes: Int = 0
 ) {
     Column {
-        Text(
-            text = stringResource(
-                R.string.statistics_worked_hours_totally_title,
-                totallyWorkedHours
-            )
-        )
-        Spacer(Modifier.padding(vertical = 4.dp))
-        Text(
-            text = stringResource(
-                R.string.statistics_rest_hours_totally_title,
-                totallyRestHours
-            )
+        val workString = if (totallyWorkedMinutes > 60) stringResource(
+            R.string.statistics_worked_hours_totally_title,
+            totallyWorkedMinutes / 60.0
+        ) else stringResource(
+            R.string.statistics_worked_minutes_totally_title,
+            totallyWorkedMinutes
         )
 
+        val restString = if (totallyRestMinutes > 60) stringResource(
+            R.string.statistics_rest_hours_totally_title,
+            totallyRestMinutes / 60.0
+        ) else stringResource(
+            R.string.statistics_rest_minutes_totally_title,
+            totallyRestMinutes
+        )
+
+        Text(text = workString)
+        Spacer(Modifier.padding(vertical = 4.dp))
+        Text(text = restString)
     }
 }
 
@@ -377,8 +382,8 @@ private fun StatisticsPlaceholderPreviewDark() {
 private fun StatisticsScreenContentWithSomeData() {
     StatisticsScreenContent(
         forLastDays = 7,
-        totallyWorkedHours = 32.5,
-        totallyRestHours = 3.0,
+        totallyWorkedMinutes = 1950,
+        totallyRestMinutes = 180,
         workActionCountPerDays = listOf(3, 0, 2, 1, 4, 0, 0),
         restActionCountPerDays = listOf(2, 0, 1, 0, 3, 0, 0),
         workActionMinutesPerDays = listOf(585, 0, 390, 195, 780, 0, 0),

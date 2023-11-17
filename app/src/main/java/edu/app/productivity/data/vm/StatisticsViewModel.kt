@@ -23,13 +23,13 @@ class StatisticsViewModel @Inject constructor(private val repository: ActionHist
     val actionHistory: StateFlow<List<ActionHistoryEntity>>
         get() = _actionHistory
 
-    private val _totallyWorkedHours = MutableStateFlow(0.0)
-    val totallyWorkedHours: StateFlow<Double>
-        get() = _totallyWorkedHours
+    private val _totallyWorkedMinutes = MutableStateFlow(0)
+    val totallyWorkedMinutes: StateFlow<Int>
+        get() = _totallyWorkedMinutes
 
-    private val _totallyRestHours = MutableStateFlow(0.0)
-    val totallyRestHours: StateFlow<Double>
-        get() = _totallyRestHours
+    private val _totallyRestMinutes = MutableStateFlow(0)
+    val totallyRestMinutes: StateFlow<Int>
+        get() = _totallyRestMinutes
 
     private val _workActionsPerDays = MutableStateFlow<List<List<ActionHistoryEntity>>>(emptyList())
     val workActionsPerDays: StateFlow<List<List<ActionHistoryEntity>>>
@@ -57,8 +57,12 @@ class StatisticsViewModel @Inject constructor(private val repository: ActionHist
                                         (it[true] ?: emptyList()) to (it[false] ?: emptyList())
                                     }
 
-                                _totallyWorkedHours.emit(workActions.sumOf { it.action.duration.inWholeMinutes } / 60.0)
-                                _totallyRestHours.emit(restActions.sumOf { it.action.duration.inWholeMinutes } / 60.0)
+                                _totallyWorkedMinutes.emit(
+                                    workActions.sumOf { it.action.duration.inWholeMinutes }.toInt()
+                                )
+                                _totallyRestMinutes.emit(
+                                    restActions.sumOf { it.action.duration.inWholeMinutes }.toInt()
+                                )
 
                                 _workActionsPerDays.emit(
                                     workActions.toActionsPerDay(lastDaysCount)
