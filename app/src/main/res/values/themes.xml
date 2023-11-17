@@ -2,4 +2,11 @@
 <resources>
 
     <style name="Theme.Productivity" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.Productivity.SplashScreen" parent="Theme.Productivity">
+        <item name="windowSplashScreenBackground">@color/ic_launcher_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="postSplashScreenTheme">@style/Theme.Productivity</item>
+
+        <item name="android:windowBackground">@color/ic_launcher_background</item>
+    </style>
 </resources>
