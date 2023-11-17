@@ -195,12 +195,12 @@ fun PerDayBarChart(
         Spacer(Modifier.padding(vertical = 4.dp))
 
         @Composable
-        fun column(color: Color): LineComponent {
-            val corner = 8.dp
+        fun column(color: Color, needNarrower: Boolean = false): LineComponent {
+            val corner = 10.dp
             return lineComponent(
                 shape = RoundedCornerShape(topStart = corner, topEnd = corner),
                 color = color,
-                thickness = 16.dp
+                thickness = if (needNarrower) 10.dp else 20.dp
             )
         }
 
@@ -218,7 +218,7 @@ fun PerDayBarChart(
             )
 
             val restChart = columnChart(
-                columns = listOf(column(MaterialTheme.colorScheme.secondary))
+                columns = listOf(column(MaterialTheme.colorScheme.secondary, needNarrower = true))
             )
 
             val workModel by remember(showInMinutes) {
