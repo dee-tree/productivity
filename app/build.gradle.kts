@@ -59,6 +59,7 @@ val hiltVersion = "2.48.1"
 val hiltNavigationComposeVersion = "1.1.0"
 val lifecycleVersion = "2.6.2"
 val roomVersion = "2.6.0"
+val vicoVersion = "1.12.0"
 val junit5Version = "5.9.2"
 val splashScreenVersion = "1.0.1"
 val composeBomVersion = "2023.10.01"
@@ -107,6 +108,10 @@ dependencies {
     ksp("androidx.room:room-compiler:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
     testImplementation("androidx.room:room-testing:$roomVersion")
+
+    //  compose charts
+    implementation("com.patrykandpatrick.vico:compose-m3:$vicoVersion")
+    implementation("com.patrykandpatrick.vico:core:$vicoVersion")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junit5Version")
     testImplementation("org.junit.jupiter:junit-jupiter-params:$junit5Version")

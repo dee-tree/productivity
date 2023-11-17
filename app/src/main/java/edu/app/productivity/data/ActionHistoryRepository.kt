@@ -11,13 +11,18 @@ import java.util.Date
 import javax.inject.Inject
 
 class ActionHistoryRepository @Inject constructor(
-    private val db: AppDatabase
+    private val db: AppDatabase,
+    private val dataStore: DataStoreManager
 ) {
 
     private val dao by lazy { db.actionHistoryDao() }
 
     suspend fun getHistory(): Flow<List<ActionHistoryEntity>> = withContext(Dispatchers.IO) {
         dao.getAll()
+    }
+
+    suspend fun getHistory(lastDays: Int): Flow<List<ActionHistoryEntity>> = withContext(Dispatchers.IO) {
+        dao.getAll(lastDays)
     }
 
     suspend fun insertAction(action: Action) {
@@ -31,4 +36,10 @@ class ActionHistoryRepository @Inject constructor(
     suspend fun deleteAction(action: ActionHistoryEntity) {
         dao.delete(action)
     }
+
+    fun getStatisticsDaysCount() = dataStore.get {
+        this[PreferencesRepository.StatisticsForLastDaysKey]
+            ?: PreferencesRepository.STATISTICS_FOR_LAST_DAYS_DEFAULT
+    }
+
 }

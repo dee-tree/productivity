@@ -24,7 +24,10 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideActionHistoryRepository(db: AppDatabase) = ActionHistoryRepository(db)
+    fun provideActionHistoryRepository(
+        db: AppDatabase,
+        dataStoreManager: DataStoreManager
+    ) = ActionHistoryRepository(db, dataStoreManager)
 
     @Provides
     @Singleton

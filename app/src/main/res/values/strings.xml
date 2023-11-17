@@ -54,6 +54,7 @@
     <string name="action_duration">%1$d minutes, %2$d seconds</string>
 
     <string name="statistics_header">Statistics</string>
+    <string name="statistics_no_data_title">Here will be displayed your progress</string>
     <string name="statistics_worked_hours_totally_title">Totally worked %.1f hours</string>
     <string name="statistics_rest_hours_totally_title">Totally %.1f hours on rest</string>
 
@@ -61,5 +62,13 @@
         <item quantity="one">Statistics for the last day</item>
         <item quantity="other">Statistics for last %d days</item>
     </plurals>
+
+    <string name="statistics_events_vs_minutes">Events / Minutes</string>
+    <string name="statistics_totally_worked_per_days_title">Per day data</string>
+    <string name="statistics_totally_worked_per_days_legend">Work</string>
+    <string name="statistics_totally_rest_per_days_legend">Rest</string>
+    <string name="statistics_totally_per_day_data_xaxis_days_before">Days before</string>
+    <string name="statistics_totally_per_day_data_yaxis_minutes">Minutes</string>
+    <string name="statistics_totally_per_day_data_yaxis_events">Events</string>
 
 </resources>
