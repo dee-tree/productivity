@@ -1,0 +1,18 @@
+object Versions {
+    const val androidCoreKtxVersion = "1.9.0"
+    const val dataStoreVersion = "1.0.0"
+    const val coroutinesVersion = "1.6.4"
+    const val hiltVersion = "2.48.1"
+    const val hiltNavigationComposeVersion = "1.1.0"
+    const val lifecycleVersion = "2.6.2"
+    const val roomVersion = "2.6.0"
+    const val vicoVersion = "1.12.0"
+    const val junit5Version = "5.9.2"
+    const val splashScreenVersion = "1.0.1"
+    const val composeBomVersion = "2023.10.01"
+    const val espressoVersion = "3.5.1"
+    const val androidJUnitVersion = "1.1.5"
+    const val junitVersion = "4.13.2"
+    const val material3Version = "1.2.0-alpha10"
+    const val activityComposeVersion = "1.8.1"
+}
