@@ -7,15 +7,15 @@ plugins {
 }
 
 android {
-    namespace = "edu.app.productivity"
-    compileSdk = 34
+    namespace = Config.namespace
+    compileSdk = Config.compileSdkVersion
 
     defaultConfig {
-        applicationId = "edu.app.productivity"
-        minSdk = 26
-        targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        applicationId = Config.namespace
+        minSdk = Config.minSdkVersion
+        targetSdk = Config.targetSdkVersion
+        versionCode = Config.versionCode
+        versionName = Config.versionName
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -37,14 +37,14 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = Config.javaSourceVersion
+        targetCompatibility = Config.javaTargetVersion
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = Config.javaTargetVersion.toString()
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.3"
+        kotlinCompilerExtensionVersion = Config.composeCompilerExtensionVersion
     }
     packaging {
         resources {
@@ -53,76 +53,75 @@ android {
     }
 }
 
-val dataStoreVersion = "1.0.0"
-val coroutinesVersion = "1.6.4"
-val hiltVersion = "2.48.1"
-val hiltNavigationComposeVersion = "1.1.0"
-val lifecycleVersion = "2.6.2"
-val roomVersion = "2.6.0"
-val vicoVersion = "1.12.0"
-val junit5Version = "5.9.2"
-val splashScreenVersion = "1.0.1"
-val composeBomVersion = "2023.10.01"
-val espressoVersion = "3.5.1"
-val androidJUnitVersion = "1.1.5"
-val junitVersion = "4.13.2"
-val material3Version = "1.2.0-alpha10"
-val activityComposeVersion = "1.8.1"
-val androidCoreKtxVersion = "1.9.0"
+//val dataStoreVersion = "1.0.0"
+//val coroutinesVersion = "1.6.4"
+//val hiltVersion = "2.48.1"
+//val hiltNavigationComposeVersion = "1.1.0"
+//val lifecycleVersion = "2.6.2"
+//val roomVersion = "2.6.0"
+//val vicoVersion = "1.12.0"
+//val junit5Version = "5.9.2"
+//val splashScreenVersion = "1.0.1"
+//val composeBomVersion = "2023.10.01"
+//val espressoVersion = "3.5.1"
+//val androidJUnitVersion = "1.1.5"
+//val junitVersion = "4.13.2"
+//val material3Version = "1.2.0-alpha10"
+//val activityComposeVersion = "1.8.1"
 
 dependencies {
 
-    implementation("androidx.core:core-ktx:$androidCoreKtxVersion")
+    implementation(Dependencies.androidCoreKtx)
     // lifecycle
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion")
-    implementation("androidx.lifecycle:lifecycle-runtime-compose:$lifecycleVersion")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycleVersion")
-    implementation("androidx.lifecycle:lifecycle-service:$lifecycleVersion")
+    implementation(Dependencies.lifecycleRuntimeKtx)
+    implementation(Dependencies.lifecycleRuntimeCompose)
+    implementation(Dependencies.lifecycleViewModelKtx)
+    implementation(Dependencies.lifecycleViewModelCompose)
+    implementation(Dependencies.lifecycleService)
 
-    implementation("androidx.activity:activity-compose:$activityComposeVersion")
-    implementation(platform("androidx.compose:compose-bom:$composeBomVersion"))
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.ui:ui-graphics")
-    implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.compose.material3:material3:$material3Version")
+    implementation(Dependencies.activityCompose)
+    implementation(platform(Dependencies.composeBom))
+    implementation(Dependencies.composeUI)
+    implementation(Dependencies.composeUIGraphics)
+    implementation(Dependencies.composeUIPreview)
+    implementation(Dependencies.composeMaterial3)
 
     // datastore (shared preferences)
-    implementation("androidx.datastore:datastore-preferences:${dataStoreVersion}")
+    implementation(Dependencies.datastore)
 
     // coroutines
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion")
+    implementation(Dependencies.coroutinesCore)
+    implementation(Dependencies.coroutinesAndroid)
 
     // splash screen
-    implementation("androidx.core:core-splashscreen:$splashScreenVersion")
+    implementation(Dependencies.splashScreenCore)
 
     // hilt
-    implementation("com.google.dagger:hilt-android:$hiltVersion")
-    implementation("androidx.hilt:hilt-navigation-compose:$hiltNavigationComposeVersion")
-    kapt("com.google.dagger:hilt-android-compiler:$hiltVersion")
+    implementation(Dependencies.hilt)
+    implementation(Dependencies.hiltNavigationCompose)
+    kapt(Dependencies.hiltCompiler)
 
     // room
-    implementation("androidx.room:room-runtime:$roomVersion")
-    annotationProcessor("androidx.room:room-compiler:$roomVersion")
-    ksp("androidx.room:room-compiler:$roomVersion")
-    implementation("androidx.room:room-ktx:$roomVersion")
-    testImplementation("androidx.room:room-testing:$roomVersion")
+    implementation(Dependencies.roomRuntime)
+    annotationProcessor(Dependencies.roomCompiler)
+    ksp(Dependencies.roomCompiler)
+    implementation(Dependencies.roomKtx)
+    testImplementation(Dependencies.roomTest)
 
     //  compose charts
-    implementation("com.patrykandpatrick.vico:compose-m3:$vicoVersion")
-    implementation("com.patrykandpatrick.vico:core:$vicoVersion")
+    implementation(Dependencies.vicoCompose)
+    implementation(Dependencies.vicoCore)
 
-    testImplementation("org.junit.jupiter:junit-jupiter-api:$junit5Version")
-    testImplementation("org.junit.jupiter:junit-jupiter-params:$junit5Version")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junit5Version")
-    testImplementation("junit:junit:$junitVersion")
-    androidTestImplementation("androidx.test.ext:junit:$androidJUnitVersion")
-    androidTestImplementation("androidx.test.espresso:espresso-core:$espressoVersion")
-    androidTestImplementation(platform("androidx.compose:compose-bom:$composeBomVersion"))
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
-    debugImplementation("androidx.compose.ui:ui-tooling")
-    debugImplementation("androidx.compose.ui:ui-test-manifest")
+    testImplementation(Dependencies.junitApi)
+    testImplementation(Dependencies.junitParams)
+    testRuntimeOnly(Dependencies.junitEngine)
+    testImplementation(Dependencies.junit)
+    androidTestImplementation(Dependencies.androidJUnit)
+    androidTestImplementation(Dependencies.espresso)
+    androidTestImplementation(platform(Dependencies.composeBomTest))
+    androidTestImplementation(Dependencies.uiJUnit4)
+    debugImplementation(Dependencies.uiTooling)
+    debugImplementation(Dependencies.uiTestManifest)
 }
 
 kapt {
