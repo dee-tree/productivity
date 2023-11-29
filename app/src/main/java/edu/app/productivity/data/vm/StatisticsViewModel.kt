@@ -9,6 +9,7 @@ import edu.app.productivity.data.db.ActionHistoryEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.Instant
@@ -39,7 +40,7 @@ class StatisticsViewModel @Inject constructor(private val repository: ActionHist
     val restActionsPerDays: StateFlow<List<List<ActionHistoryEntity>>>
         get() = _restActionsPerDays
 
-    private val lastDaysCountFlow = repository.getStatisticsDaysCount()
+    val lastDaysCountFlow = repository.getStatisticsDaysCount()
 
     init {
         viewModelScope.launch {

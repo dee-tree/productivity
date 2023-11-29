@@ -86,6 +86,7 @@ import kotlin.time.Duration.Companion.minutes
 fun StatisticsScreen(
     viewModel: StatisticsViewModel = hiltViewModel()
 ) {
+    val lastDaysCount by viewModel.lastDaysCountFlow.collectAsStateWithLifecycle(initialValue = 1)
     val totallyWorkedMinutes by viewModel.totallyWorkedMinutes.collectAsStateWithLifecycle()
     val totallyRestMinutes by viewModel.totallyRestMinutes.collectAsStateWithLifecycle()
 
@@ -115,6 +116,7 @@ fun StatisticsScreen(
     val workActions = workActionsPerDays.flatten().map { it.action.toAction() as Action.Work }
 
     StatisticsScreenContent(
+        forLastDays = lastDaysCount,
         totallyWorkedMinutes = totallyWorkedMinutes,
         totallyRestMinutes = totallyRestMinutes,
 
@@ -255,7 +257,6 @@ fun PerDayBarChart(
                 columns = listOf(column(MaterialTheme.colorScheme.secondary, needNarrower = true))
             )
 
-            // TODO: make only int numbers via vararg of numbers
             val workModel by remember(showInMinutes) {
                 mutableStateOf(
                     entryModelOf(
@@ -308,6 +309,7 @@ fun PerDayBarChart(
                         else R.string.statistics_totally_per_day_data_yaxis_events
                     )
                 ),
+                chartScrollSpec = rememberChartScrollSpec(isScrollEnabled = forLastDays > 10),
                 model = model
             )
         }
@@ -397,7 +399,7 @@ fun ActivitiesPieChart(
                 titleComponent = textComponent(color = MaterialTheme.colorScheme.onBackground),
                 title = stringResource(R.string.statistics_activity_names_pie_data_yaxis),
             ),
-            chartScrollSpec = rememberChartScrollSpec(isScrollEnabled = false),
+            chartScrollSpec = rememberChartScrollSpec(isScrollEnabled = columnsCount > 10),
         )
     }
 }
