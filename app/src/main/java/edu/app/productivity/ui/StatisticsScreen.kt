@@ -114,9 +114,7 @@ fun StatisticsScreen(
 
     val workActions = workActionsPerDays.flatten().map { it.action.toAction() as Action.Work }
 
-    StatisticsScreenContentWithSomeData()
-
-   /* StatisticsScreenContent(
+    StatisticsScreenContent(
         totallyWorkedMinutes = totallyWorkedMinutes,
         totallyRestMinutes = totallyRestMinutes,
 
@@ -127,7 +125,7 @@ fun StatisticsScreen(
         restActionMinutesPerDays = restMinutesPerDays,
 
         workActions = workActions
-    )*/
+    )
 }
 
 @Composable
@@ -156,7 +154,6 @@ fun StatisticsScreenContent(
         modifier = Modifier
             .padding(16.dp)
             .verticalScroll(rememberScrollState())
-//            .weight(weight =1f, fill = false)
     ) {
         Text(
             text = stringResource(R.string.statistics_header),
@@ -198,7 +195,7 @@ fun StatisticsScreenContent(
 
                 verticalSpacer()
 
-                ActivitiesPieChart(/*actions = workActions*/)
+                ActivitiesPieChart(actions = workActions)
 
             }
         }
@@ -342,18 +339,7 @@ private val topChartColors by lazy {
 
 @Composable
 fun ActivitiesPieChart(
-    actions: List<Action.Work> = listOf(
-        Action.Work(45.minutes * 7, "Swimming"),
-        Action.Work(45.minutes * 5, "Swimming"),
-        Action.Work(45.minutes * 2, "Swimming"),
-        Action.Work(90.minutes, "Homework"),
-        Action.Work(1.hours * 12, "Work"),
-        Action.Work(50.minutes, "Meditation"),
-        Action.Work(3.hours, "Gaming"),
-        Action.Work(30.minutes, "Gaming"),
-        Action.Work(230.minutes, "Reading"),
-        Action.Work(20.minutes, "Concentrating"),
-    ),
+    actions: List<Action.Work> = listOf(),
     topColors: List<Color> = topChartColors
 ) {
     Column(
@@ -390,11 +376,10 @@ fun ActivitiesPieChart(
             columns = topColors.take(columnsCount).map { column(it) },
         )
 
-        val model =
-            actionsPerActivity.take(columnsCount).mapIndexed { index, (activity, duration) ->
-                val data = listOf(duration.inWholeMinutes.toInt())
-                entryModelOf(*data.mapIndexed { idx, i -> idx to i }.toTypedArray())
-            }.reduce { total, current -> current + total }
+        val model = actionsPerActivity.take(columnsCount).mapIndexed { _, (activity, duration) ->
+            val data = listOf(duration.inWholeMinutes.toInt())
+            entryModelOf(*data.mapIndexed { idx, i -> idx to i }.toTypedArray())
+        }.reduce { total, current -> current + total }
 
         Chart(
             chart = chart,
@@ -410,8 +395,7 @@ fun ActivitiesPieChart(
             startAxis = rememberStartAxis(
                 label = textComponent(color = MaterialTheme.colorScheme.onBackground),
                 titleComponent = textComponent(color = MaterialTheme.colorScheme.onBackground),
-                title = "TODO(Working minutes)", // TODO: title
-
+                title = stringResource(R.string.statistics_activity_names_pie_data_yaxis),
             ),
             chartScrollSpec = rememberChartScrollSpec(isScrollEnabled = false),
         )

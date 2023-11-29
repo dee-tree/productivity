@@ -73,7 +73,8 @@
     <string name="statistics_totally_per_day_data_yaxis_minutes">Minutes</string>
     <string name="statistics_totally_per_day_data_yaxis_events">Events</string>
 
-    <string name="statistics_activity_names_pie_title">Your popular activities</string>
+    <string name="statistics_activity_names_pie_title">Most involved activities</string>
+    <string name="statistics_activity_names_pie_data_yaxis">Minutes</string>
 
 
 </resources>
