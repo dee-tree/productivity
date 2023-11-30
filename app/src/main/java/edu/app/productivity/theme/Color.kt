@@ -17,3 +17,18 @@ val CaputMortuum = Color(0xFF512A2A)
 
 
 val DarkGray = Color(0xFF2F3037)
+
+/* non-themed colors, don't use them in themed interface */
+val CadetGray = Color(0xFF88A2AA)
+val TropicalIndigo = Color(0xFF8980F5)
+val Kappel = Color(0xFF3BA99C)
+val MayaBlue = Color(0xFF7EBCE6)
+val ChinaRose = Color(0xFFB56576)
+//val SkyMagenta = Color(0xFFAE759F)
+val Eminence = Color(0xFF55286F)
+val PinkLavander = Color(0xFFD8B4E2)
+val Nyanza = Color(0xFFE9FFDB)
+val FrenchGray = Color(0xFFBEBFC5)
+val YellowGreen = Color(0xFF9ACD32)
+val Saffron = Color(0xFFF4C431)
+//val Kappel = Color(0xFF)

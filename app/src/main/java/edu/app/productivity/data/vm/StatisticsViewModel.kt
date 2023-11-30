@@ -39,7 +39,7 @@ class StatisticsViewModel @Inject constructor(private val repository: ActionHist
     val restActionsPerDays: StateFlow<List<List<ActionHistoryEntity>>>
         get() = _restActionsPerDays
 
-    private val lastDaysCountFlow = repository.getStatisticsDaysCount()
+    val lastDaysCountFlow = repository.getAccountingDaysCount()
 
     init {
         viewModelScope.launch {

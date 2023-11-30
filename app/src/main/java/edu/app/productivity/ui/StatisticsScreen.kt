@@ -10,15 +10,19 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -44,6 +48,7 @@ import com.patrykandpatrick.vico.compose.axis.horizontal.rememberBottomAxis
 import com.patrykandpatrick.vico.compose.axis.vertical.rememberStartAxis
 import com.patrykandpatrick.vico.compose.chart.Chart
 import com.patrykandpatrick.vico.compose.chart.column.columnChart
+import com.patrykandpatrick.vico.compose.chart.scroll.rememberChartScrollSpec
 import com.patrykandpatrick.vico.compose.component.lineComponent
 import com.patrykandpatrick.vico.compose.component.shapeComponent
 import com.patrykandpatrick.vico.compose.component.textComponent
@@ -55,13 +60,33 @@ import com.patrykandpatrick.vico.core.entry.composed.plus
 import com.patrykandpatrick.vico.core.entry.entryModelOf
 import edu.app.productivity.R
 import edu.app.productivity.data.vm.StatisticsViewModel
+import edu.app.productivity.domain.Action
+import edu.app.productivity.theme.Buff
+import edu.app.productivity.theme.CadetGray
+import edu.app.productivity.theme.ChinaRose
+import edu.app.productivity.theme.Eminence
+import edu.app.productivity.theme.FrenchGray
+import edu.app.productivity.theme.Kappel
+import edu.app.productivity.theme.MayaBlue
+import edu.app.productivity.theme.MossGreen
+import edu.app.productivity.theme.Nyanza
+import edu.app.productivity.theme.PinkLavander
 import edu.app.productivity.theme.ProductivityTheme
+import edu.app.productivity.theme.Saffron
+import edu.app.productivity.theme.TropicalIndigo
+import edu.app.productivity.theme.YellowGreen
+import kotlin.math.min
+import kotlin.random.Random
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
 
 
 @Composable
 fun StatisticsScreen(
     viewModel: StatisticsViewModel = hiltViewModel()
 ) {
+    val lastDaysCount by viewModel.lastDaysCountFlow.collectAsStateWithLifecycle(initialValue = 1)
     val totallyWorkedMinutes by viewModel.totallyWorkedMinutes.collectAsStateWithLifecycle()
     val totallyRestMinutes by viewModel.totallyRestMinutes.collectAsStateWithLifecycle()
 
@@ -88,7 +113,10 @@ fun StatisticsScreen(
         })
     }
 
+    val workActions = workActionsPerDays.flatten().map { it.action.toAction() as Action.Work }
+
     StatisticsScreenContent(
+        forLastDays = lastDaysCount,
         totallyWorkedMinutes = totallyWorkedMinutes,
         totallyRestMinutes = totallyRestMinutes,
 
@@ -96,7 +124,9 @@ fun StatisticsScreen(
         restActionCountPerDays = restEventsCountPerDays,
 
         workActionMinutesPerDays = workMinutesPerDays,
-        restActionMinutesPerDays = restMinutesPerDays
+        restActionMinutesPerDays = restMinutesPerDays,
+
+        workActions = workActions
     )
 }
 
@@ -112,6 +142,8 @@ fun StatisticsScreenContent(
     workActionMinutesPerDays: List<Int> = emptyList(),
     restActionMinutesPerDays: List<Int> = emptyList(),
 
+    workActions: List<Action.Work> = emptyList(),
+
     workColor: Color = MaterialTheme.colorScheme.primary,
     restColor: Color = MaterialTheme.colorScheme.secondary
 ) {
@@ -121,7 +153,9 @@ fun StatisticsScreenContent(
 
     Column(
         horizontalAlignment = Alignment.Start,
-        modifier = Modifier.padding(16.dp)
+        modifier = Modifier
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState())
     ) {
         Text(
             text = stringResource(R.string.statistics_header),
@@ -162,6 +196,8 @@ fun StatisticsScreenContent(
                 )
 
                 verticalSpacer()
+
+                ActivitiesPieChart(actions = workActions)
 
             }
         }
@@ -273,6 +309,7 @@ fun PerDayBarChart(
                         else R.string.statistics_totally_per_day_data_yaxis_events
                     )
                 ),
+                chartScrollSpec = rememberChartScrollSpec(isScrollEnabled = forLastDays > 10),
                 model = model
             )
         }
@@ -288,6 +325,82 @@ fun PerDayBarChart(
             )
         }
 
+    }
+}
+
+
+private val topChartColors by lazy {
+    listOf(
+        MossGreen,
+        Buff
+    ) + listOf(
+        CadetGray, TropicalIndigo, Kappel, MayaBlue, ChinaRose, Eminence,
+        PinkLavander, Nyanza, FrenchGray, YellowGreen, Saffron
+    ).shuffled(Random(1337))
+}
+
+@Composable
+fun ActivitiesPieChart(
+    actions: List<Action.Work> = listOf(),
+    topColors: List<Color> = topChartColors
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(
+            stringResource(R.string.statistics_activity_names_pie_title),
+            style = MaterialTheme.typography.titleMedium
+        )
+
+        Spacer(Modifier.padding(vertical = 4.dp))
+
+
+        @Composable
+        fun column(color: Color): LineComponent {
+            val corner = 15.dp
+            return lineComponent(
+                shape = RoundedCornerShape(topStart = corner, topEnd = corner),
+                color = color,
+                thickness = 20.dp,
+                strokeColor = MaterialTheme.colorScheme.onBackground,
+                strokeWidth = 1.dp,
+            )
+        }
+
+        val actionsPerActivity = actions.groupingBy { it.activityName.lowercase() }
+            .aggregate { _, accumulator: Duration?, element: Action, _ ->
+                element.duration + (accumulator ?: Duration.ZERO)
+            }.toList().sortedBy { it.second }
+
+        val columnsCount = min(topColors.size, actionsPerActivity.size)
+
+        val chart = columnChart(
+            columns = topColors.take(columnsCount).map { column(it) },
+        )
+
+        val model = actionsPerActivity.take(columnsCount).mapIndexed { _, (activity, duration) ->
+            val data = listOf(duration.inWholeMinutes.toInt())
+            entryModelOf(*data.mapIndexed { idx, i -> idx to i }.toTypedArray())
+        }.reduce { total, current -> current + total }
+
+        Chart(
+            chart = chart,
+            model = model,
+            legend = horizontalLegend(
+                items = (0..<columnsCount).map {
+                    chartLegend(color = topColors[it], text = actionsPerActivity[it].first)
+                },
+                iconSize = 8.dp,
+                iconPadding = 4.dp,
+                spacing = 8.dp
+            ),
+            startAxis = rememberStartAxis(
+                label = textComponent(color = MaterialTheme.colorScheme.onBackground),
+                titleComponent = textComponent(color = MaterialTheme.colorScheme.onBackground),
+                title = stringResource(R.string.statistics_activity_names_pie_data_yaxis),
+            ),
+            chartScrollSpec = rememberChartScrollSpec(isScrollEnabled = columnsCount > 10),
+        )
     }
 }
 
@@ -387,7 +500,20 @@ private fun StatisticsScreenContentWithSomeData() {
         workActionCountPerDays = listOf(3, 0, 2, 1, 4, 0, 0),
         restActionCountPerDays = listOf(2, 0, 1, 0, 3, 0, 0),
         workActionMinutesPerDays = listOf(585, 0, 390, 195, 780, 0, 0),
-        restActionMinutesPerDays = listOf(60, 0, 30, 0, 90, 0, 0)
+        restActionMinutesPerDays = listOf(60, 0, 30, 0, 90, 0, 0),
+
+        workActions = listOf(
+            Action.Work(45.minutes * 7, "Swimming"),
+            Action.Work(45.minutes * 5, "Swimming"),
+            Action.Work(45.minutes * 2, "Swimming"),
+            Action.Work(90.minutes, "Homework"),
+            Action.Work(1.hours * 12, "Work"),
+            Action.Work(50.minutes, "Meditation"),
+            Action.Work(3.hours, "Gaming"),
+            Action.Work(30.minutes, "Gaming"),
+            Action.Work(230.minutes, "Reading"),
+            Action.Work(20.minutes, "Concentrating"),
+        )
     )
 }
 
@@ -407,6 +533,25 @@ private fun StatisticsScreenPreviewDark() {
     ProductivityTheme(darkTheme = true) {
         Surface {
             StatisticsScreenContentWithSomeData()
+        }
+    }
+}
+
+@Composable
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
+private fun TopChartColors() {
+    ProductivityTheme(darkTheme = false) {
+        Surface {
+            Column {
+                topChartColors.forEach { color ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(16.dp)
+                            .background(color)
+                    ) {}
+                }
+            }
         }
     }
 }

@@ -12,7 +12,8 @@ class PreferencesRepository @Inject constructor(
     fun getPreferences(): Flow<Preferences> = dataStore.get {
         Preferences(
             timerSetupIsDial = this[TimerSetupIsDialKey] ?: TIMER_SETUP_IS_DIAL_DEFAULT,
-            theme = this[ThemeKey]?.let { Preferences.Themes.values()[it] } ?: THEME_DEFAULT
+            theme = this[ThemeKey]?.let { Preferences.Themes.values()[it] } ?: THEME_DEFAULT,
+            accountingDaysCount = this[AccountingDaysCountKey] ?: ACCOUNTING_DAYS_COUNT_DEFAULT
         )
     }
 
@@ -20,18 +21,19 @@ class PreferencesRepository @Inject constructor(
         dataStore.edit {
             this[TimerSetupIsDialKey] = preferences.timerSetupIsDial
             this[ThemeKey] = preferences.theme.ordinal
+            this[AccountingDaysCountKey] = preferences.accountingDaysCount
         }
     }
 
     companion object {
         private val TimerSetupIsDialKey = booleanPreferencesKey("timer_setup_is_dial")
         private val ThemeKey = intPreferencesKey("theme")
-        val StatisticsForLastDaysKey = intPreferencesKey("statistics_for_last_days")
+        val AccountingDaysCountKey = intPreferencesKey("accounting_days_count")
 
         const val TIMER_SETUP_IS_DIAL_DEFAULT = false
         val THEME_DEFAULT = Preferences.Themes.SYSTEM
-        const val STATISTICS_FOR_LAST_DAYS_DEFAULT = 7
-        val STATISTICS_FOR_LAST_DAYS_RANGE = 1..30
+        const val ACCOUNTING_DAYS_COUNT_DEFAULT = 7
+        val ACCOUNTING_DAYS_RANGE = 7..30
     }
 
 }

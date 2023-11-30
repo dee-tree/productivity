@@ -4,8 +4,9 @@ data class Preferences(
     /**
      * Set up duration via dial or via keyboard like numbers
      */
-    val timerSetupIsDial: Boolean = false,
-    val theme: Themes = Themes.SYSTEM,
+    val timerSetupIsDial: Boolean = PreferencesRepository.TIMER_SETUP_IS_DIAL_DEFAULT,
+    val theme: Themes = PreferencesRepository.THEME_DEFAULT,
+    val accountingDaysCount: Int = PreferencesRepository.ACCOUNTING_DAYS_COUNT_DEFAULT
 ) {
 
 

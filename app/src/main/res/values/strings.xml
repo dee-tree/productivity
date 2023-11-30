@@ -45,6 +45,8 @@
     <string name="preferences_header">Your preferences</string>
     <string name="preferences_preference_setup_duration_dialing">Setup duration via dial</string>
     <string name="preferences_preference_theme">App theme</string>
+    <string name="preferences_preference_statistics_accounting_days">Statistics days length</string>
+    <string name="preferences_preference_statistics_accounting_days_select">Select from %1$d to %2$d days</string>
 
 
     <string name="action_work_title">Work</string>
@@ -54,7 +56,7 @@
     <string name="action_duration">%1$d minutes, %2$d seconds</string>
 
     <string name="statistics_header">Statistics</string>
-    <string name="statistics_no_data_title">Here will be displayed your progress</string>
+    <string name="statistics_no_data_title">Your progress will be displayed here</string>
     <string name="statistics_worked_hours_totally_title">Totally worked %.1f hours</string>
     <string name="statistics_worked_minutes_totally_title">Totally worked %d minutes</string>
     <string name="statistics_rest_hours_totally_title">Totally %.1f hours on rest</string>
@@ -72,5 +74,9 @@
     <string name="statistics_totally_per_day_data_xaxis_days_before">Days before</string>
     <string name="statistics_totally_per_day_data_yaxis_minutes">Minutes</string>
     <string name="statistics_totally_per_day_data_yaxis_events">Events</string>
+
+    <string name="statistics_activity_names_pie_title">Most involved activities</string>
+    <string name="statistics_activity_names_pie_data_yaxis">Minutes</string>
+
 
 </resources>
