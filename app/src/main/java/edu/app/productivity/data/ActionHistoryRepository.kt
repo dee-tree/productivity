@@ -37,9 +37,9 @@ class ActionHistoryRepository @Inject constructor(
         dao.delete(action)
     }
 
-    fun getStatisticsDaysCount() = dataStore.get {
-        this[PreferencesRepository.StatisticsForLastDaysKey]
-            ?: PreferencesRepository.STATISTICS_FOR_LAST_DAYS_DEFAULT
+    fun getAccountingDaysCount() = dataStore.get {
+        this[PreferencesRepository.AccountingDaysCountKey]
+            ?: PreferencesRepository.ACCOUNTING_DAYS_COUNT_DEFAULT
     }
 
 }
