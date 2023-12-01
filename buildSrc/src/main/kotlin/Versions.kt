@@ -9,6 +9,7 @@ object Versions {
     const val vicoVersion = "1.12.0"
     const val junit5Version = "5.9.2"
     const val splashScreenVersion = "1.0.1"
+    const val lottieVersion = "6.1.0"
     const val composeBomVersion = "2023.10.01"
     const val espressoVersion = "3.5.1"
     const val androidJUnitVersion = "1.1.5"

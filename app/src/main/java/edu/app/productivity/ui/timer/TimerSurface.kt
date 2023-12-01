@@ -5,49 +5,15 @@ package edu.app.productivity.ui.timer
 
 import android.content.res.Configuration
 import androidx.annotation.StringRes
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.Crossfade
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.SizeTransform
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.togetherWith
+import androidx.compose.animation.*
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material.icons.rounded.Refresh
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -57,7 +23,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.airbnb.lottie.compose.*
 import edu.app.productivity.R
+import edu.app.productivity.data.vm.TimerViewModel
 import edu.app.productivity.domain.Action
 import edu.app.productivity.domain.TimerState
 import edu.app.productivity.theme.ProductivityTheme
@@ -106,9 +76,14 @@ fun TimerSurface(
         Spacer(modifier = Modifier.padding(32.dp))
 
 
-        AnimatedVisibility(visible = timerState is TimerState.TimerRunning || timerState is TimerState.TimerPaused) {
+        AnimatedVisibility(
+            visible = actions.isNotEmpty() && (timerState.isRunning || timerState.isPaused)
+        ) {
             Column {
-                CoinMiningAnimation()
+                if (actions.isNotEmpty()) {
+                    TimerAnimation(actions.first(), timerState)
+                }
+
                 Spacer(modifier = Modifier.padding(16.dp))
                 TimerText(timerState.remaining)
             }
@@ -244,14 +219,37 @@ fun TimerCancelledCard(
 
 
 @Composable
-fun CoinMiningAnimation() {
-    Box(
+fun TimerAnimation(action: Action, timerState: TimerState) {
+    val shouldAnimBeActive = timerState.isRunning
+    val modifier = Modifier.size(size = 256.dp)
+    val iterations = LottieConstants.IterateForever
+
+    val composition by rememberLottieComposition(
+        spec = LottieCompositionSpec.RawRes(resId = if (action.isWork) R.raw.timer_animation_work else R.raw.timer_animation_rest)
+    )
+
+    Column(
         modifier = Modifier
             .size(256.dp)
             .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.secondary)
+            .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.75f))
     ) {
-        Text("TODO") // TODO: mining animation
+        if (action.isWork) {
+            LottieAnimation(
+                modifier = modifier,
+                composition = composition,
+                iterations = iterations,
+                isPlaying = shouldAnimBeActive
+            )
+        } else if (action.isRest) {
+            LottieAnimation(
+                modifier = modifier,
+                composition = composition,
+                speed = 2f,
+                iterations = iterations,
+                isPlaying = shouldAnimBeActive
+            )
+        }
     }
 }
 

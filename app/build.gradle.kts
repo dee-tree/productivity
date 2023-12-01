@@ -53,22 +53,6 @@ android {
     }
 }
 
-//val dataStoreVersion = "1.0.0"
-//val coroutinesVersion = "1.6.4"
-//val hiltVersion = "2.48.1"
-//val hiltNavigationComposeVersion = "1.1.0"
-//val lifecycleVersion = "2.6.2"
-//val roomVersion = "2.6.0"
-//val vicoVersion = "1.12.0"
-//val junit5Version = "5.9.2"
-//val splashScreenVersion = "1.0.1"
-//val composeBomVersion = "2023.10.01"
-//val espressoVersion = "3.5.1"
-//val androidJUnitVersion = "1.1.5"
-//val junitVersion = "4.13.2"
-//val material3Version = "1.2.0-alpha10"
-//val activityComposeVersion = "1.8.1"
-
 dependencies {
 
     implementation(Dependencies.androidCoreKtx)
@@ -95,6 +79,9 @@ dependencies {
 
     // splash screen
     implementation(Dependencies.splashScreenCore)
+
+    // lottie animation
+    implementation(Dependencies.lottieAnimation)
 
     // hilt
     implementation(Dependencies.hilt)

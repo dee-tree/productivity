@@ -22,6 +22,8 @@ object Dependencies {
 
     val splashScreenCore by lazy { "androidx.core:core-splashscreen:${Versions.splashScreenVersion}" }
 
+    val lottieAnimation by lazy { "com.airbnb.android:lottie-compose:${Versions.lottieVersion}" }
+
     val hilt by lazy { "com.google.dagger:hilt-android:${Versions.hiltVersion}" }
     val hiltNavigationCompose by lazy { "androidx.hilt:hilt-navigation-compose:${Versions.hiltNavigationComposeVersion}" }
     val hiltCompiler by lazy { "com.google.dagger:hilt-android-compiler:${Versions.hiltVersion}" }
