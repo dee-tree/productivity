@@ -306,6 +306,17 @@ fun PreviewSingleShotTimerPlanSheetLight() {
 }
 
 @Composable
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
+@OptIn(ExperimentalMaterial3Api::class)
+fun PreviewSingleShotTimerPlanSheetLightDial() {
+    ProductivityTheme {
+        Surface {
+            SingleShotTimerPlanSheetContent(timerSetupIsDial = true)
+        }
+    }
+}
+
+@Composable
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @OptIn(ExperimentalMaterial3Api::class)
 fun PreviewSingleShotTimerPlanSheetDark() {
