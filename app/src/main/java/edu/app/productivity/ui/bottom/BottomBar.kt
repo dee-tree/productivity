@@ -25,7 +25,7 @@ fun BottomBar(
     BottomAppBar(
         actions = {
             IconButton(onClick = onPreferencesClick) {
-                Icon(Icons.Rounded.Menu, contentDescription = "Menu")
+                Icon(Icons.Rounded.Menu, contentDescription = "Preferences")
             }
             IconButton(onClick = onStatisticsClick) {
                 Icon(

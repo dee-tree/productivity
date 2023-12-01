@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
@@ -25,8 +26,8 @@ fun DurationPicker(
     state: TimePickerState = rememberTimePickerState(),
     dial: Boolean = false
 ) {
-    if (dial) TimePicker(state = state, colors = durationPickerColors, modifier = modifier)
-    else TimeInput(state = state, colors = durationPickerColors, modifier = modifier)
+    if (dial) TimePicker(state = state, colors = durationPickerColors, modifier = modifier.testTag("TimePicker"))
+    else TimeInput(state = state, colors = durationPickerColors, modifier = modifier.testTag("TimeInput"))
 }
 
 val TimePickerState.duration: Duration
