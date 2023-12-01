@@ -1,21 +1,62 @@
-@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
+@file:OptIn(
+    ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class,
+    ExperimentalFoundationApi::class
+)
 
 package edu.app.productivity.ui.timer
 
 
 import android.content.res.Configuration
 import androidx.annotation.StringRes
-import androidx.compose.animation.*
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material.icons.rounded.Refresh
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -23,17 +64,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.airbnb.lottie.compose.*
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.rememberLottieComposition
 import edu.app.productivity.R
-import edu.app.productivity.data.vm.TimerViewModel
 import edu.app.productivity.domain.Action
 import edu.app.productivity.domain.TimerState
 import edu.app.productivity.theme.ProductivityTheme
 import edu.app.productivity.theme.Typography
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.math.abs
+import kotlin.math.min
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
@@ -75,77 +118,86 @@ fun TimerSurface(
 
         Spacer(modifier = Modifier.padding(32.dp))
 
-
-        AnimatedVisibility(
-            visible = actions.isNotEmpty() && (timerState.isRunning || timerState.isPaused)
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(horizontal = 64.dp)
         ) {
-            Column {
-                if (actions.isNotEmpty()) {
-                    TimerAnimation(actions.first(), timerState)
-                }
 
-                Spacer(modifier = Modifier.padding(16.dp))
-                TimerText(timerState.remaining)
-            }
-        }
-
-        AnimatedVisibility(visible = timerState is TimerState.TimerNotInitiated) {
-            Button(
-                onClick = { showSingleShotTimerSheet = true },
-                modifier = Modifier.padding(top = 64.dp)
+            AnimatedVisibility(
+                visible = actions.isNotEmpty() && (timerState.isRunning || timerState.isPaused)
             ) {
-                Text(text = stringResource(R.string.single_shot_timer_plan_setup_action))
-            }
-        }
-
-        AnimatedVisibility(visible = timerState is TimerState.TimerCompleted && actions.isEmpty()) {
-            // actions chain is completed
-            OutlinedButton(onClick = { onTimerClear() }) {
-                Text(text = stringResource(R.string.timer_all_actions_completed_state_action_ok))
-            }
-        }
-
-
-        AnimatedVisibility(visible = timerState is TimerState.TimerCancelled) {
-            TimerCancelledCard(
-                onTimerRestore = onTimerRestore,
-                onTimerClear = onTimerClear,
-                defaultTimerRestoreActionTimeout = defaultTimerRestoreActionTimeout
-            )
-        }
-
-        Spacer(modifier = Modifier.padding(8.dp))
-
-        Row {
-
-            AnimatedVisibility(timerState.isRunning || timerState.isPaused) {
-                Row {
-                    TextButton(
-                        onClick = onTimerCancel,
-                        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onBackground)
-                    ) {
-                        Text(text = stringResource(R.string.cancel_timer))
+                Column {
+                    if (actions.isNotEmpty()) {
+                        TimerAnimation(actions.first(), timerState)
                     }
 
-                    Spacer(modifier = Modifier.padding(horizontal = 6.dp))
+                    Spacer(modifier = Modifier.padding(16.dp))
+                    TimerText(timerState.remaining)
+                }
+            }
 
-                    IconButton(onClick = if (timerState.isRunning) onTimerPause else onTimerResume) {
-                        Crossfade(targetState = timerState.isRunning, label = "") { running ->
-                            Icon(
-                                painterResource(
-                                    if (running) R.drawable.round_pause_24
-                                    else R.drawable.round_play_arrow_24
-                                ),
-                                contentDescription = if (running) "pause" else "resume"
-                            )
+            AnimatedVisibility(visible = timerState.isRunning || timerState.isPaused) {
+                LabeledActions(actions)
+            }
+
+            AnimatedVisibility(visible = timerState is TimerState.TimerNotInitiated) {
+                Button(
+                    onClick = { showSingleShotTimerSheet = true },
+                    modifier = Modifier.padding(top = 64.dp)
+                ) {
+                    Text(text = stringResource(R.string.single_shot_timer_plan_setup_action))
+                }
+            }
+
+            AnimatedVisibility(visible = timerState is TimerState.TimerCompleted && actions.isEmpty()) {
+                // actions chain is completed
+                OutlinedButton(onClick = { onTimerClear() }) {
+                    Text(text = stringResource(R.string.timer_all_actions_completed_state_action_ok))
+                }
+            }
+
+
+            AnimatedVisibility(visible = timerState is TimerState.TimerCancelled) {
+                TimerCancelledCard(
+                    onTimerRestore = onTimerRestore,
+                    onTimerClear = onTimerClear,
+                    defaultTimerRestoreActionTimeout = defaultTimerRestoreActionTimeout
+                )
+            }
+
+            Spacer(modifier = Modifier.padding(8.dp))
+
+            Row {
+
+                AnimatedVisibility(timerState.isRunning || timerState.isPaused) {
+                    Row {
+                        TextButton(
+                            onClick = onTimerCancel,
+                            colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onBackground)
+                        ) {
+                            Text(text = stringResource(R.string.cancel_timer))
+                        }
+
+                        Spacer(modifier = Modifier.padding(horizontal = 6.dp))
+
+                        IconButton(onClick = if (timerState.isRunning) onTimerPause else onTimerResume) {
+                            Crossfade(targetState = timerState.isRunning, label = "") { running ->
+                                Icon(
+                                    painterResource(
+                                        if (running) R.drawable.round_pause_24
+                                        else R.drawable.round_play_arrow_24
+                                    ),
+                                    contentDescription = if (running) "pause" else "resume"
+                                )
+                            }
                         }
                     }
+
                 }
 
             }
 
         }
-
     }
 
     if (showSingleShotTimerSheet) {
@@ -161,6 +213,68 @@ fun TimerSurface(
                 }
             }
         )
+    }
+}
+
+@Composable
+fun LabeledActions(actions: List<Action>) {
+    val scope = rememberCoroutineScope()
+
+    Column(horizontalAlignment = Alignment.End, modifier = Modifier.fillMaxWidth()) {
+        Spacer(Modifier.padding(vertical = 4.dp))
+
+        val rowState = rememberLazyListState()
+
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(
+                12.dp,
+                alignment = Alignment.CenterHorizontally
+            ),
+            verticalAlignment = Alignment.CenterVertically,
+            state = rowState,
+            modifier = Modifier.fillMaxWidth(0.4f),
+            contentPadding = PaddingValues(vertical = 4.dp, horizontal = 8.dp)
+        ) {
+            if (!rowState.isScrollInProgress) {
+                scope.launch {
+                    delay(300)
+
+                    // need scroll to first or last?
+                    rowState.layoutInfo.visibleItemsInfo.first().let { first ->
+                        if (first.index == 0 && first.offset == 0) {
+                            rowState.animateScrollToItem(first.index)
+                            return@launch
+                        }
+                    }
+
+                    rowState.layoutInfo.visibleItemsInfo.last().let { last ->
+                        if (last.index == actions.size - 1 && last.offset + last.size == rowState.layoutInfo.viewportSize.width) {
+                            rowState.animateScrollToItem(last.index)
+                            return@launch
+                        }
+                    }
+
+
+                    val halfedViewPortSize = rowState.layoutInfo.viewportSize.width / 2
+                    val elToScroll = rowState.layoutInfo.visibleItemsInfo.minBy {
+                        min(
+                            abs(it.offset + it.size - halfedViewPortSize),
+                            abs(halfedViewPortSize - it.offset)
+                        )
+                    }
+
+                    rowState.animateScrollToItem(
+                        elToScroll.index,
+                        scrollOffset = -(halfedViewPortSize - elToScroll.size / 2)
+                    )
+                }
+            }
+
+            items(actions.size) { actionIdx ->
+                val labelAlpha = 0.4f + 0.6f * (actions.size - actionIdx).toFloat() / actions.size
+                MarkedLabel(actions[actionIdx], modifier = Modifier.alpha(labelAlpha))
+            }
+        }
     }
 }
 
@@ -230,7 +344,7 @@ fun TimerAnimation(action: Action, timerState: TimerState) {
 
     Column(
         modifier = Modifier
-            .size(256.dp)
+            .fillMaxWidth()
             .clip(CircleShape)
             .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.75f))
     ) {
@@ -265,7 +379,7 @@ fun TimerText(leftDuration: Duration) {
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                .width(256.dp)
+                .fillMaxWidth()
                 .padding(vertical = 16.dp)
         ) {
             // Minutes
