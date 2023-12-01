@@ -90,10 +90,10 @@ dependencies {
 
     // room
     implementation(Dependencies.roomRuntime)
-    annotationProcessor(Dependencies.roomCompiler)
     ksp(Dependencies.roomCompiler)
     implementation(Dependencies.roomKtx)
     testImplementation(Dependencies.roomTest)
+    androidTestImplementation(Dependencies.roomTest)
 
     //  compose charts
     implementation(Dependencies.vicoCompose)
