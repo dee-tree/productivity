@@ -1,4 +1,7 @@
-@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
+@file:OptIn(
+    ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class,
+    ExperimentalFoundationApi::class
+)
 
 package edu.app.productivity.ui.timer
 
@@ -15,14 +18,18 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Clear
@@ -49,6 +56,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -67,6 +75,8 @@ import edu.app.productivity.theme.ProductivityTheme
 import edu.app.productivity.theme.Typography
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.math.abs
+import kotlin.math.min
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
@@ -127,12 +137,7 @@ fun TimerSurface(
             }
 
             AnimatedVisibility(visible = timerState.isRunning || timerState.isPaused) {
-                Column(horizontalAlignment = Alignment.End, modifier = Modifier.fillMaxWidth()) {
-                    actions.firstOrNull()?.let { action ->
-                        Spacer(Modifier.padding(vertical = 4.dp))
-                        MarkedLabel(action)
-                    }
-                }
+                LabeledActions(actions)
             }
 
             AnimatedVisibility(visible = timerState is TimerState.TimerNotInitiated) {
@@ -208,6 +213,68 @@ fun TimerSurface(
                 }
             }
         )
+    }
+}
+
+@Composable
+fun LabeledActions(actions: List<Action>) {
+    val scope = rememberCoroutineScope()
+
+    Column(horizontalAlignment = Alignment.End, modifier = Modifier.fillMaxWidth()) {
+        Spacer(Modifier.padding(vertical = 4.dp))
+
+        val rowState = rememberLazyListState()
+
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(
+                12.dp,
+                alignment = Alignment.CenterHorizontally
+            ),
+            verticalAlignment = Alignment.CenterVertically,
+            state = rowState,
+            modifier = Modifier.fillMaxWidth(0.4f),
+            contentPadding = PaddingValues(vertical = 4.dp, horizontal = 8.dp)
+        ) {
+            if (!rowState.isScrollInProgress) {
+                scope.launch {
+                    delay(300)
+
+                    // need scroll to first or last?
+                    rowState.layoutInfo.visibleItemsInfo.first().let { first ->
+                        if (first.index == 0 && first.offset == 0) {
+                            rowState.animateScrollToItem(first.index)
+                            return@launch
+                        }
+                    }
+
+                    rowState.layoutInfo.visibleItemsInfo.last().let { last ->
+                        if (last.index == actions.size - 1 && last.offset + last.size == rowState.layoutInfo.viewportSize.width) {
+                            rowState.animateScrollToItem(last.index)
+                            return@launch
+                        }
+                    }
+
+
+                    val halfedViewPortSize = rowState.layoutInfo.viewportSize.width / 2
+                    val elToScroll = rowState.layoutInfo.visibleItemsInfo.minBy {
+                        min(
+                            abs(it.offset + it.size - halfedViewPortSize),
+                            abs(halfedViewPortSize - it.offset)
+                        )
+                    }
+
+                    rowState.animateScrollToItem(
+                        elToScroll.index,
+                        scrollOffset = -(halfedViewPortSize - elToScroll.size / 2)
+                    )
+                }
+            }
+
+            items(actions.size) { actionIdx ->
+                val labelAlpha = 0.4f + 0.6f * (actions.size - actionIdx).toFloat() / actions.size
+                MarkedLabel(actions[actionIdx], modifier = Modifier.alpha(labelAlpha))
+            }
+        }
     }
 }
 

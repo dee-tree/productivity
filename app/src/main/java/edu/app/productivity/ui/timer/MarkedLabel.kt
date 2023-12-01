@@ -34,6 +34,7 @@ import edu.app.productivity.theme.ProductivityTheme
 import edu.app.productivity.theme.Saffron
 import edu.app.productivity.theme.TropicalIndigo
 import edu.app.productivity.theme.YellowGreen
+import kotlin.math.abs
 
 
 @Composable
@@ -45,19 +46,27 @@ fun Marker(color: Color = remember { randomMarkerColor }) {
     ) {}
 }
 
+
+private val markerColors = listOf(
+    CadetGray, TropicalIndigo, Kappel, MayaBlue, ChinaRose, Eminence,
+    PinkLavander, Nyanza, FrenchGray, YellowGreen, Saffron
+)
 private val randomMarkerColor: Color
-    get() = listOf(
-        CadetGray, TropicalIndigo, Kappel, MayaBlue, ChinaRose, Eminence,
-        PinkLavander, Nyanza, FrenchGray, YellowGreen, Saffron
-    ).random()
+    get() = markerColors.random()
 
 @Composable
-fun MarkedLabel(action: Action) {
+fun MarkedLabel(action: Action, modifier: Modifier = Modifier) {
     when (action) {
-        is Action.Work -> MarkedLabel(text = action.activityName)
+        is Action.Work -> MarkedLabel(
+            text = action.activityName.ifBlank { stringResource(R.string.action_work_title) },
+            markerColor = remember(action) { markerColors[abs(action.hashCode()) % markerColors.size] },
+            modifier = modifier
+        )
+
         is Action.Rest -> MarkedLabel(
             text = stringResource(R.string.action_rest_title),
-            markerColor = MaterialTheme.colorScheme.secondary
+            markerColor = MaterialTheme.colorScheme.secondary,
+            modifier = modifier
         )
 
         else -> {}
@@ -66,10 +75,11 @@ fun MarkedLabel(action: Action) {
 
 @Composable
 fun MarkedLabel(
+    modifier: Modifier = Modifier,
     markerColor: Color = remember { randomMarkerColor },
     text: String
 ) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier) {
         Marker(markerColor)
         Spacer(Modifier.padding(horizontal = 4.dp))
         Text(text, style = MaterialTheme.typography.bodySmall)
