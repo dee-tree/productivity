@@ -78,5 +78,11 @@
     <string name="statistics_activity_names_pie_title">Most involved activities</string>
     <string name="statistics_activity_names_pie_data_yaxis">Minutes</string>
 
+    <string name="forget_me_confirmation_action">Forget me</string>
+    <string name="forget_me_confirmation_title">Are you sure?</string>
+    <string name="forget_me_confirmation_content">Forgetting you will remove all related with you data such as statistics and all recorded actions</string>
+
+    <string name="forget_me_confirmation_confirm">Confirm</string>
+    <string name="forget_me_confirmation_decline">Cancel</string>
 
 </resources>

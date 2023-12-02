@@ -3,24 +3,34 @@
 package edu.app.productivity.ui
 
 import android.content.res.Configuration
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Lock
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -48,14 +58,16 @@ fun PreferencesScreen(
 
     PreferencesScreenContent(
         preferences = preferences,
-        updatePreferences = viewModel::updatePreferences
+        updatePreferences = viewModel::updatePreferences,
+        clearAllData = viewModel::clearAllData
     )
 }
 
 @Composable
 fun PreferencesScreenContent(
     preferences: Preferences = Preferences(),
-    updatePreferences: (Preferences) -> Unit = {}
+    updatePreferences: (Preferences) -> Unit = {},
+    clearAllData: () -> Unit = {}
 ) {
 
     @Composable
@@ -68,7 +80,9 @@ fun PreferencesScreenContent(
 
     Column(
         horizontalAlignment = Alignment.Start,
-        modifier = Modifier.padding(16.dp)
+        modifier = Modifier
+            .padding(16.dp)
+            .fillMaxHeight()
     ) {
         Text(
             text = stringResource(R.string.preferences_header),
@@ -96,9 +110,72 @@ fun PreferencesScreenContent(
             updatePreferences(preferences.copy(accountingDaysCount = it))
         }
 
+        Column(Modifier.fillMaxHeight(), verticalArrangement = Arrangement.Bottom) {
+            ForgetMeRow(clearAllData)
+        }
 
     }
 }
+
+
+@Composable
+fun ForgetMeRow(
+    clearAllData: () -> Unit
+) {
+    var showConfirmationDialog by remember { mutableStateOf(false) }
+
+    Row(
+        verticalAlignment = Alignment.Bottom,
+        horizontalArrangement = Arrangement.Start,
+        modifier = Modifier.padding(start = 16.dp)
+    ) {
+        OutlinedButton(
+            onClick = { showConfirmationDialog = true },
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.error),
+            colors = ButtonDefaults.outlinedButtonColors(
+                contentColor = MaterialTheme.colorScheme.error,
+            )
+        ) {
+            Text(stringResource(R.string.forget_me_confirmation_action))
+        }
+    }
+
+    if (showConfirmationDialog) {
+        ForgetMeConfirmation(
+            onConfirmed = { clearAllData(); showConfirmationDialog = false },
+            onDeclined = { showConfirmationDialog = false }
+        )
+    }
+}
+
+@Composable
+fun ForgetMeConfirmation(
+    onConfirmed: () -> Unit = {},
+    onDeclined: () -> Unit = {}
+) {
+    AlertDialog(
+        icon = { Icon(Icons.Rounded.Lock, "forget me title icon") },
+        title = { Text(stringResource(R.string.forget_me_confirmation_title)) },
+        text = { Text(stringResource(R.string.forget_me_confirmation_content)) },
+        tonalElevation = 16.dp,
+        confirmButton = {
+            TextButton(
+                onClick = onConfirmed,
+                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
+            ) {
+                Text(stringResource(R.string.forget_me_confirmation_confirm))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDeclined) {
+                Text(stringResource(R.string.forget_me_confirmation_decline))
+            }
+        },
+
+        onDismissRequest = onDeclined
+    )
+}
+
 
 @Composable
 private fun ThemePreferenceRow(
@@ -218,3 +295,25 @@ private fun PreviewPreferencesScreenDark() {
         }
     }
 }
+
+@Composable
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
+private fun PreviewForgetMeConfirmationLight() {
+    ProductivityTheme(darkTheme = false) {
+        Surface {
+            ForgetMeConfirmation()
+        }
+    }
+}
+
+@Composable
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+private fun PreviewForgetMeConfirmationDark() {
+    ProductivityTheme(darkTheme = true) {
+        Surface {
+            ForgetMeConfirmation()
+        }
+    }
+}
+
+

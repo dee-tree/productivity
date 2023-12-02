@@ -2,11 +2,13 @@ package edu.app.productivity.data
 
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
+import edu.app.productivity.data.db.AppDatabase
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class PreferencesRepository @Inject constructor(
-    private val dataStore: DataStoreManager
+    private val dataStore: DataStoreManager,
+    private val db: AppDatabase
 ) {
 
     fun getPreferences(): Flow<Preferences> = dataStore.get {
@@ -23,6 +25,10 @@ class PreferencesRepository @Inject constructor(
             this[ThemeKey] = preferences.theme.ordinal
             this[AccountingDaysCountKey] = preferences.accountingDaysCount
         }
+    }
+
+    suspend fun clearAllData() {
+        db.clearAllTables()
     }
 
     companion object {
