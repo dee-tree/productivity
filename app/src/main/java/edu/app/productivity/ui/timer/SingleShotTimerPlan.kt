@@ -7,12 +7,17 @@ package edu.app.productivity.ui.timer
 
 import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.ime
@@ -25,9 +30,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Clear
+import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DismissDirection
+import androidx.compose.material3.DismissState
+import androidx.compose.material3.DismissValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -37,19 +46,24 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Surface
+import androidx.compose.material3.SwipeToDismiss
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDismissState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -66,6 +80,7 @@ import edu.app.productivity.data.PreferencesRepository
 import edu.app.productivity.data.vm.PreferencesViewModel
 import edu.app.productivity.domain.Action
 import edu.app.productivity.theme.ProductivityTheme
+import kotlinx.coroutines.launch
 import java.util.Objects
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
@@ -112,6 +127,8 @@ fun SingleShotTimerPlanSheetContent(
     )
 
     var activityName by rememberSaveable { mutableStateOf("") }
+
+    val scope = rememberCoroutineScope()
 
     val actionsListState = rememberLazyListState()
 
@@ -220,12 +237,31 @@ fun SingleShotTimerPlanSheetContent(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     state = actionsListState
                 ) {
-
                     actions.forEachIndexed { idx, action ->
                         item(key = Objects.hash(action.hashCode(), idx)) {
-                            ActionCard(
-                                action,
-                                idx + 1
+                            val dismissState = rememberDismissState(
+                                positionalThreshold = { it / 3 }
+                            )
+
+                            LaunchedEffect(dismissState.isDismissed(DismissDirection.EndToStart)) {
+                                if (dismissState.isDismissed(DismissDirection.EndToStart)) {
+                                    scope.launch {
+                                        actions =
+                                            actions.filterIndexed { index, action -> index != idx }
+                                        dismissState.snapTo(DismissValue.Default)
+                                    }
+                                }
+                            }
+
+                            SwipeToDismiss(
+                                state = dismissState,
+                                directions = setOf(DismissDirection.EndToStart),
+                                dismissContent = {
+                                    ActionCard(action, idx + 1)
+                                },
+                                background = {
+                                    ListItemDismissDeletableBackground(dismissState)
+                                }
                             )
                         }
                     }
@@ -233,6 +269,36 @@ fun SingleShotTimerPlanSheetContent(
             }
         }
 
+    }
+}
+
+@Composable
+private fun ListItemDismissDeletableBackground(
+    dismissState: DismissState
+) {
+    val color by animateColorAsState(
+        when (dismissState.targetValue) {
+            DismissValue.Default -> MaterialTheme.colorScheme.background
+            else -> MaterialTheme.colorScheme.error
+        }
+    )
+    val alignment = Alignment.CenterEnd
+    val icon = Icons.Rounded.Delete
+    val scale by animateFloatAsState(
+        if (dismissState.targetValue == DismissValue.Default) 0.75f else 1f
+    )
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(color)
+            .padding(horizontal = 20.dp),
+        contentAlignment = alignment
+    ) {
+        Icon(
+            icon,
+            contentDescription = "Delete Icon",
+            modifier = Modifier.scale(scale)
+        )
     }
 }
 
