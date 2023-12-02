@@ -31,8 +31,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun providePreferencesRepository(dataStoreManager: DataStoreManager) =
-        PreferencesRepository(dataStoreManager)
+    fun providePreferencesRepository(dataStoreManager: DataStoreManager, db: AppDatabase) =
+        PreferencesRepository(dataStoreManager, db)
 
     @Provides
     @Singleton

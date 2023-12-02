@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import edu.app.productivity.data.Preferences
 import edu.app.productivity.data.PreferencesRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -22,6 +23,12 @@ class PreferencesViewModel @Inject constructor(
     fun updatePreferences(newPreferences: Preferences) {
         viewModelScope.launch {
             repository.savePreferences(newPreferences)
+        }
+    }
+
+    fun clearAllData() {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.clearAllData()
         }
     }
 }
