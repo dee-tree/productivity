@@ -24,29 +24,34 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.stringResource
@@ -126,21 +131,31 @@ fun SingleShotTimerPlanSheetContent(
 
         Spacer(modifier = Modifier.padding(vertical = 16.dp))
 
+        val durationPickerFocus by remember { mutableStateOf(FocusRequester()) }
+
         DurationPicker(
             state = timePickerState,
-            dial = timerSetupIsDial
+            dial = timerSetupIsDial,
+            modifier = Modifier.focusRequester(durationPickerFocus)
         )
 
         Spacer(modifier = Modifier.padding(vertical = 16.dp))
 
         AnimatedVisibility(visible = isWork) {
-            TextField(
+            OutlinedTextField(
                 value = activityName,
                 onValueChange = { if (it.length < 16) activityName = it },
                 label = { Text(text = stringResource(R.string.timer_setup_activity_type)) },
                 singleLine = true,
                 maxLines = 1,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                trailingIcon = {
+                    if (activityName.isNotEmpty()) {
+                        IconButton(onClick = { activityName = "" }) {
+                            Icon(Icons.Rounded.Clear, "clear text")
+                        }
+                    }
+                }
             )
         }
 
@@ -166,6 +181,7 @@ fun SingleShotTimerPlanSheetContent(
                             if (isWork) Action.Work(timePickerState.duration, activityName)
                             else Action.Rest(timePickerState.duration)
                     isWork = !isWork
+                    durationPickerFocus.requestFocus()
                 },
                 modifier = Modifier.fillMaxWidth(0.65f)
             ) {
