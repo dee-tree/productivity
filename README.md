@@ -4,8 +4,9 @@
 
 Productivity is an Android native application targeted on people tried to be focused. Our app is going to help you in it difficult challenge.
 
-![Productivity main screen](https://github.com/dee-tree/productivity/assets/59830756/3420010b-ae22-42d2-a454-e16d25450fbd)
-
+<p align="center">
+  <img src="https://github.com/dee-tree/productivity/assets/59830756/3420010b-ae22-42d2-a454-e16d25450fbd" alt="Productivity main screen" width="35%" height="35%" />
+</p>
 
 ## With productivity you are able to do:
 
@@ -14,13 +15,14 @@ Productivity is an Android native application targeted on people tried to be foc
 * Analyze your progress via statistics screen, extract statistics on special dates range, display your most popular activities.
 
 Timer setup screen:
-![Productivity timer setup](https://github.com/dee-tree/productivity/assets/59830756/645fd32d-81dc-4b1d-833f-49c034ed05a3)
+<p align="center">
+  <img src="https://github.com/dee-tree/productivity/assets/59830756/645fd32d-81dc-4b1d-833f-49c034ed05a3" alt="Productivity timer setup" width="35%" height="35%"  />
+</p>
 
 Statistics screen:
-![Productivity statistics](https://github.com/dee-tree/productivity/assets/59830756/9ca0747a-f265-4c56-b3d0-0a3071d51f3c)
-
-
-
+<p align="center">
+  <img src="https://github.com/dee-tree/productivity/assets/59830756/9ca0747a-f265-4c56-b3d0-0a3071d51f3c" alt="Productivity statistics" width="35%" height="35%"  />
+</p>
 
 ## Contributor list:
 
