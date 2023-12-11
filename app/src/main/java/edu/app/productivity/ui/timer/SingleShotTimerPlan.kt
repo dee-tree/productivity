@@ -1,5 +1,6 @@
 @file:OptIn(
-    ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class,
+    ExperimentalMaterial3Api::class,
+    ExperimentalComposeUiApi::class,
     ExperimentalFoundationApi::class
 )
 
@@ -25,13 +26,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.PlayArrow
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DismissDirection
@@ -46,7 +51,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Surface
-import androidx.compose.material3.SwipeToDismiss
+import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDismissState
@@ -95,30 +100,86 @@ fun SingleShotTimerPlanSheet(
 ) {
     val preferences by preferencesViewModel.preferences.collectAsStateWithLifecycle()
 
+    var currentActions by rememberSaveable { mutableStateOf<List<Action>>(emptyList()) }
+    var showDismissConfirmation by remember { mutableStateOf(false) }
+
     ModalBottomSheet(
-        sheetState = sheetState, onDismissRequest = onDismiss, modifier = Modifier
-            .nestedScroll(
-                rememberNestedScrollInteropConnection()
-            ),
+        sheetState = sheetState,
+        onDismissRequest = {
+            if (currentActions.isNotEmpty()) {
+                showDismissConfirmation = true
+            } else onDismiss()
+        },
+        modifier = Modifier.nestedScroll(rememberNestedScrollInteropConnection()),
         windowInsets = WindowInsets.ime
     ) {
         SingleShotTimerPlanSheetContent(
-            onPlanSelected = onSelected,
+            actions = currentActions,
+            onActionsChange = { currentActions = it },
+            onPlanSelected = { onSelected(currentActions) },
             sheetState = sheetState,
             timerSetupIsDial = preferences.timerSetupIsDial
+        )
+    }
+
+    val scope = rememberCoroutineScope()
+
+    if (showDismissConfirmation) {
+        SingleShotTimerDismissConfirmation(
+            onConfirmed = {
+                showDismissConfirmation = false
+                onDismiss()
+            },
+            onDeclined = {
+                showDismissConfirmation = false
+                scope.launch {
+                    sheetState.expand()
+                }
+            }
         )
     }
 }
 
 @Composable
+fun SingleShotTimerDismissConfirmation(
+    onConfirmed: () -> Unit = {},
+    onDeclined: () -> Unit = {}
+) {
+    AlertDialog(
+        icon = { Icon(Icons.Rounded.ArrowDropDown, "dismiss request") },
+        title = { Text(stringResource(R.string.single_shot_dismiss_confirmation_confirmation_title)) },
+        text = { Text(stringResource(R.string.single_shot_dismiss_confirmation_confirmation_content)) },
+        tonalElevation = 16.dp,
+        confirmButton = {
+            TextButton(
+                onClick = onConfirmed,
+                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.primary)
+            ) {
+                Text(stringResource(R.string.single_shot_dismiss_confirmation_confirm))
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = onDeclined,
+                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.secondary)
+            ) {
+                Text(stringResource(R.string.single_shot_dismiss_confirmation_decline))
+            }
+        },
+        onDismissRequest = onDeclined
+    )
+}
+
+@Composable
 fun SingleShotTimerPlanSheetContent(
-    onPlanSelected: (List<Action>) -> Unit = {},
+    actions: List<Action>,
+    onActionsChange: (List<Action>) -> Unit,
+    onPlanSelected: () -> Unit = {},
     sheetState: SheetState = rememberModalBottomSheetState(),
     timerSetupIsDial: Boolean = PreferencesRepository.TIMER_SETUP_IS_DIAL_DEFAULT,
     defaultWorkMinutes: Int = 30,
     defaultRestMinutes: Int = 10
 ) {
-    var actions by rememberSaveable { mutableStateOf<List<Action>>(emptyList()) }
     var isWork by rememberSaveable { mutableStateOf(true) } // first task is work always
 
     val timePickerState = rememberTimePickerState(
@@ -194,9 +255,10 @@ fun SingleShotTimerPlanSheetContent(
             TextButton(
                 enabled = timePickerState.duration.isPositive(),
                 onClick = {
-                    actions = actions +
+                    val newActions = actions +
                             if (isWork) Action.Work(timePickerState.duration, activityName)
                             else Action.Rest(timePickerState.duration)
+                    onActionsChange(newActions)
                     isWork = !isWork
                     durationPickerFocus.requestFocus()
                 },
@@ -208,10 +270,11 @@ fun SingleShotTimerPlanSheetContent(
             TextButton(
                 enabled = actions.isNotEmpty() || timePickerState.duration.isPositive(),
                 onClick = {
-                    actions =
-                        actions + if (isWork) Action.Work(timePickerState.duration, activityName)
-                        else Action.Rest(timePickerState.duration)
-                    onPlanSelected(actions)
+                    val newActions = actions +
+                            if (isWork) Action.Work(timePickerState.duration, activityName)
+                            else Action.Rest(timePickerState.duration)
+                    onActionsChange(newActions)
+                    onPlanSelected()
                 },
             ) {
                 Text(text = stringResource(R.string.timer_setup_confirm))
@@ -246,23 +309,21 @@ fun SingleShotTimerPlanSheetContent(
                             LaunchedEffect(dismissState.isDismissed(DismissDirection.EndToStart)) {
                                 if (dismissState.isDismissed(DismissDirection.EndToStart)) {
                                     scope.launch {
-                                        actions =
-                                            actions.filterIndexed { index, action -> index != idx }
+                                        val newActions = actions.filterIndexed { i, _ -> i != idx }
+                                        onActionsChange(newActions)
                                         dismissState.snapTo(DismissValue.Default)
                                     }
                                 }
                             }
 
-                            SwipeToDismiss(
+                            SwipeToDismissBox(
                                 state = dismissState,
                                 directions = setOf(DismissDirection.EndToStart),
-                                dismissContent = {
-                                    ActionCard(action, idx + 1)
-                                },
-                                background = {
+                                backgroundContent = {
                                     ListItemDismissDeletableBackground(dismissState)
-                                }
-                            )
+                                }) {
+                                ActionCard(action, idx + 1)
+                            }
                         }
                     }
                 }
@@ -280,17 +341,19 @@ private fun ListItemDismissDeletableBackground(
         when (dismissState.targetValue) {
             DismissValue.Default -> MaterialTheme.colorScheme.background
             else -> MaterialTheme.colorScheme.error
-        }
+        },
+        label = "color animation"
     )
     val alignment = Alignment.CenterEnd
     val icon = Icons.Rounded.Delete
     val scale by animateFloatAsState(
-        if (dismissState.targetValue == DismissValue.Default) 0.75f else 1f
+        if (dismissState.targetValue == DismissValue.Default) 1f else 1.5f,
+        label = "icon scale animation"
     )
     Box(
         Modifier
             .fillMaxSize()
-            .background(color)
+            .background(color, CardDefaults.shape)
             .padding(horizontal = 20.dp),
         contentAlignment = alignment
     ) {
@@ -385,7 +448,11 @@ fun PreviewActionRestCardLight() {
 fun PreviewSingleShotTimerPlanSheetLight() {
     ProductivityTheme {
         Surface {
-            SingleShotTimerPlanSheetContent()
+            var actions by remember { mutableStateOf(emptyList<Action>()) }
+            SingleShotTimerPlanSheetContent(
+                actions = actions,
+                onActionsChange = { actions = it }
+            )
         }
     }
 }
@@ -396,7 +463,12 @@ fun PreviewSingleShotTimerPlanSheetLight() {
 fun PreviewSingleShotTimerPlanSheetLightDial() {
     ProductivityTheme {
         Surface {
-            SingleShotTimerPlanSheetContent(timerSetupIsDial = true)
+            var actions by remember { mutableStateOf(emptyList<Action>()) }
+            SingleShotTimerPlanSheetContent(
+                actions = actions,
+                onActionsChange = { actions = it },
+                timerSetupIsDial = true
+            )
         }
     }
 }
@@ -407,7 +479,11 @@ fun PreviewSingleShotTimerPlanSheetLightDial() {
 fun PreviewSingleShotTimerPlanSheetDark() {
     ProductivityTheme(darkTheme = true) {
         Surface {
-            SingleShotTimerPlanSheetContent()
+            var actions by remember { mutableStateOf(emptyList<Action>()) }
+            SingleShotTimerPlanSheetContent(
+                actions = actions,
+                onActionsChange = { actions = it }
+            )
         }
     }
 }
