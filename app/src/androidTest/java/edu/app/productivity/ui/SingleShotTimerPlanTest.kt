@@ -1,6 +1,10 @@
 package edu.app.productivity.ui
 
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.NativeKeyEvent
 import androidx.compose.ui.res.stringResource
@@ -17,7 +21,6 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performKeyPress
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
-import androidx.compose.ui.test.printToLog
 import edu.app.productivity.R
 import edu.app.productivity.domain.Action
 import edu.app.productivity.theme.ProductivityTheme
@@ -49,9 +52,13 @@ class SingleShotTimerPlanTest {
                 createPlanText = stringResource(R.string.timer_setup_confirm)
                 defaultActivityName = stringResource(R.string.action_work_default_activity)
 
+                var actions by remember { mutableStateOf(emptyList<Action>()) }
+
                 SingleShotTimerPlanSheetContent(
+                    actions = actions,
+                    onActionsChange = { actions = it },
                     timerSetupIsDial = true,
-                    onPlanSelected = { plan = it }
+                    onPlanSelected = { plan = actions }
                 )
             }
         }
@@ -108,16 +115,16 @@ class SingleShotTimerPlanTest {
                 activityNameText = stringResource(R.string.timer_setup_activity_type)
                 createPlanText = stringResource(R.string.timer_setup_confirm)
 
+                var actions by remember { mutableStateOf(emptyList<Action>()) }
+
                 SingleShotTimerPlanSheetContent(
+                    actions = actions,
+                    onActionsChange = { actions = it },
                     timerSetupIsDial = false,
-                    onPlanSelected = { plan = it }
+                    onPlanSelected = { plan = actions }
                 )
             }
         }
-
-        composeRuleTest.onNode(hasTestTag("TimeInput"))
-            .printToLog("LOOOG")
-
 
         // test 0:0 time is invalid to go next
         composeRuleTest.onNode(hasContentDescription("for hour") and hasAnyAncestor(hasTestTag("TimeInput")))
