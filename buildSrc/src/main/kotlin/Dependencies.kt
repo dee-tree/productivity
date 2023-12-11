@@ -33,6 +33,8 @@ object Dependencies {
     val roomKtx by lazy { "androidx.room:room-ktx:${Versions.roomVersion}" }
     val roomTest by lazy { "androidx.room:room-testing:${Versions.roomVersion}" }
 
+    val gson by lazy { "com.google.code.gson:gson:${Versions.gsonVersion}" }
+
     val vicoCompose by lazy { "com.patrykandpatrick.vico:compose-m3:${Versions.vicoVersion}" }
     val vicoCore by lazy { "com.patrykandpatrick.vico:core:${Versions.vicoVersion}" }
 
