@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -92,7 +91,7 @@ import kotlin.time.Duration.Companion.seconds
 
 
 @Composable
-fun SingleShotTimerPlanSheet(
+fun ActionsSetupBottomSheet(
     sheetState: SheetState = rememberModalBottomSheetState(),
     onDismiss: () -> Unit = {},
     onSelected: (List<Action>) -> Unit = {},
@@ -113,7 +112,7 @@ fun SingleShotTimerPlanSheet(
         modifier = Modifier.nestedScroll(rememberNestedScrollInteropConnection()),
         windowInsets = WindowInsets.ime
     ) {
-        SingleShotTimerPlanSheetContent(
+        ActionsSetupBottomSheetContent(
             actions = currentActions,
             onActionsChange = { currentActions = it },
             onPlanSelected = { onSelected(currentActions) },
@@ -125,7 +124,7 @@ fun SingleShotTimerPlanSheet(
     val scope = rememberCoroutineScope()
 
     if (showDismissConfirmation) {
-        SingleShotTimerDismissConfirmation(
+        ActionsSetupBottomSheetDismissConfirmation(
             onConfirmed = {
                 showDismissConfirmation = false
                 onDismiss()
@@ -141,7 +140,7 @@ fun SingleShotTimerPlanSheet(
 }
 
 @Composable
-fun SingleShotTimerDismissConfirmation(
+fun ActionsSetupBottomSheetDismissConfirmation(
     onConfirmed: () -> Unit = {},
     onDeclined: () -> Unit = {}
 ) {
@@ -171,7 +170,7 @@ fun SingleShotTimerDismissConfirmation(
 }
 
 @Composable
-fun SingleShotTimerPlanSheetContent(
+fun ActionsSetupBottomSheetContent(
     actions: List<Action>,
     onActionsChange: (List<Action>) -> Unit,
     onPlanSelected: () -> Unit = {},
@@ -445,11 +444,11 @@ fun PreviewActionRestCardLight() {
 @Composable
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
 @OptIn(ExperimentalMaterial3Api::class)
-fun PreviewSingleShotTimerPlanSheetLight() {
+private fun PreviewActionsSetupBottomSheetLight() {
     ProductivityTheme {
         Surface {
             var actions by remember { mutableStateOf(emptyList<Action>()) }
-            SingleShotTimerPlanSheetContent(
+            ActionsSetupBottomSheetContent(
                 actions = actions,
                 onActionsChange = { actions = it }
             )
@@ -460,11 +459,11 @@ fun PreviewSingleShotTimerPlanSheetLight() {
 @Composable
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
 @OptIn(ExperimentalMaterial3Api::class)
-fun PreviewSingleShotTimerPlanSheetLightDial() {
+fun PreviewActionsSetupBottomSheetLightDial() {
     ProductivityTheme {
         Surface {
             var actions by remember { mutableStateOf(emptyList<Action>()) }
-            SingleShotTimerPlanSheetContent(
+            ActionsSetupBottomSheetContent(
                 actions = actions,
                 onActionsChange = { actions = it },
                 timerSetupIsDial = true
@@ -476,11 +475,11 @@ fun PreviewSingleShotTimerPlanSheetLightDial() {
 @Composable
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @OptIn(ExperimentalMaterial3Api::class)
-fun PreviewSingleShotTimerPlanSheetDark() {
+fun PreviewActionsSetupBottomSheetDark() {
     ProductivityTheme(darkTheme = true) {
         Surface {
             var actions by remember { mutableStateOf(emptyList<Action>()) }
-            SingleShotTimerPlanSheetContent(
+            ActionsSetupBottomSheetContent(
                 actions = actions,
                 onActionsChange = { actions = it }
             )

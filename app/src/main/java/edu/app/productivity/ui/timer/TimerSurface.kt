@@ -201,7 +201,7 @@ fun TimerSurface(
     }
 
     if (showSingleShotTimerSheet) {
-        SingleShotTimerPlanSheet(
+        ActionsSetupBottomSheet(
             sheetState = singleShotTimerSheetState,
             onDismiss = { showSingleShotTimerSheet = false },
             onSelected = { newAction ->
