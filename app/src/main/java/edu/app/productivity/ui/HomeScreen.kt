@@ -17,6 +17,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import edu.app.productivity.data.vm.ActionTemplateViewModel
 import edu.app.productivity.data.vm.TimerViewModel
 import edu.app.productivity.domain.Action
 import edu.app.productivity.domain.TimerState
@@ -24,11 +25,12 @@ import edu.app.productivity.ui.timer.TimerSurface
 
 @Composable
 fun HomeScreen(
-    timerViewModel: TimerViewModel = hiltViewModel()
+    timerViewModel: TimerViewModel = hiltViewModel(),
+    templatesViewModel: ActionTemplateViewModel = hiltViewModel(),
 ) {
     val timerState by timerViewModel.timerState.collectAsStateWithLifecycle()
-
     val actions by timerViewModel.actions.collectAsStateWithLifecycle()
+    val templates by templatesViewModel.templates.collectAsStateWithLifecycle()
 
     val ctx = LocalContext.current
 
@@ -64,7 +66,11 @@ fun HomeScreen(
         AnimatedVisibility(
             visible = (actions.isEmpty() || actions.first() is Action.NotInitiatedAction) && timerState is TimerState.TimerNotInitiated
         ) {
-            ActionTemplates()
+            ActionTemplates(
+                templates = templates,
+                onTemplateAdd = { name, actions ->  templatesViewModel.addTemplate(name, actions) },
+                isTemplateNameValid = templatesViewModel::isNameValid
+            )
         }
 
     }

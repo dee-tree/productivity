@@ -5,7 +5,7 @@ import androidx.room.RoomDatabase
 
 @Database(
     entities = [ActionHistoryEntity::class, ActionEntity::class, ActionsTemplateEntity::class],
-    version = 1
+    version = 2,
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun actionHistoryDao(): ActionHistoryDao

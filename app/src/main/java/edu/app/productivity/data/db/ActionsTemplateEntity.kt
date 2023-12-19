@@ -7,7 +7,8 @@ import androidx.room.TypeConverters
 import edu.app.productivity.domain.Action
 
 @Entity("actions_template")
+@TypeConverters(BaseConverters.ActionListConverter::class)
 data class ActionsTemplateEntity(
     @ColumnInfo("name") @PrimaryKey val name: String,
-    @ColumnInfo("actions") @field:TypeConverters(BaseConverters.ActionListConverter::class) val actions: List<Action>
+    @ColumnInfo("actions") val actions: List<Action>
 )

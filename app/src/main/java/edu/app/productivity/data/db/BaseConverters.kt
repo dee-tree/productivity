@@ -1,7 +1,7 @@
 package edu.app.productivity.data.db
 
 import androidx.room.TypeConverter
-import com.google.gson.Gson
+import edu.app.productivity.di.AppModule
 import edu.app.productivity.domain.Action
 import java.util.Date
 
@@ -21,11 +21,12 @@ interface BaseConverters {
 
         @TypeConverter
         @JvmStatic
-        fun fromString(actionStr: String) = Gson().fromJson(actionStr, Action::class.java)
+        fun fromString(actionStr: String) =
+            AppModule.provideGson().fromJson(actionStr, Action::class.java)
 
         @TypeConverter
         @JvmStatic
-        fun actionToGson(action: Action) = Gson().toJson(action)
+        fun actionToGson(action: Action) = AppModule.provideGson().toJson(action)
     }
 
     object ActionListConverter {
@@ -33,11 +34,11 @@ interface BaseConverters {
         @TypeConverter
         @JvmStatic
         fun fromString(actionsStr: String) =
-            Gson().fromJson(actionsStr, Array<Action>::class.java).toList()
+            AppModule.provideGson().fromJson(actionsStr, Array<Action>::class.java).toList()
 
         @TypeConverter
         @JvmStatic
-        fun actionToGson(actions: List<Action>) = Gson().toJson(actions)
+        fun actionsToGson(actions: List<Action>) = AppModule.provideGson().toJson(actions)
     }
 
 }
