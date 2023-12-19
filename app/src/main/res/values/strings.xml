@@ -53,7 +53,9 @@
     <string name="action_rest_title">Rest</string>
     <string name="action_work_default_activity">Work-time</string>
     <string name="action_rest">Rest-time</string>
-    <string name="action_duration">%1$d minutes, %2$d seconds</string>
+<!--    <string name="action_duration">%1$d minutes, %2$d seconds</string>-->
+    <string name="action_duration_minutes">%1$d minutes</string>
+    <string name="action_duration">%1$d:%2$d</string>
 
     <string name="statistics_header">Statistics</string>
     <string name="statistics_no_data_title">Your progress will be displayed here</string>

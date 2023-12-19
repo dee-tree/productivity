@@ -116,7 +116,18 @@ fun TimerSurface(
             )
         }
 
-        Spacer(modifier = Modifier.padding(32.dp))
+        Spacer(modifier = Modifier.padding(12.dp))
+
+        AnimatedVisibility(visible = timerState is TimerState.TimerNotInitiated) {
+            Button(
+                onClick = { showSingleShotTimerSheet = true },
+                modifier = Modifier.padding(top = 64.dp)
+            ) {
+                Text(text = stringResource(R.string.single_shot_timer_plan_setup_action))
+            }
+        }
+
+        Spacer(modifier = Modifier.padding(12.dp))
 
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -138,15 +149,6 @@ fun TimerSurface(
 
             AnimatedVisibility(visible = timerState.isRunning || timerState.isPaused) {
                 LabeledActions(actions)
-            }
-
-            AnimatedVisibility(visible = timerState is TimerState.TimerNotInitiated) {
-                Button(
-                    onClick = { showSingleShotTimerSheet = true },
-                    modifier = Modifier.padding(top = 64.dp)
-                ) {
-                    Text(text = stringResource(R.string.single_shot_timer_plan_setup_action))
-                }
             }
 
             AnimatedVisibility(visible = timerState is TimerState.TimerCompleted && actions.isEmpty()) {

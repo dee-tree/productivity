@@ -37,9 +37,6 @@ import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DismissDirection
-import androidx.compose.material3.DismissState
-import androidx.compose.material3.DismissValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -50,10 +47,12 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissState
+import androidx.compose.material3.SwipeToDismissValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberDismissState
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.rememberSwipeToDismissState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -83,7 +82,6 @@ import edu.app.productivity.data.PreferencesRepository
 import edu.app.productivity.data.vm.PreferencesViewModel
 import edu.app.productivity.domain.Action
 import edu.app.productivity.theme.ProductivityTheme
-import edu.app.productivity.ui.ActionCard
 import kotlinx.coroutines.launch
 import java.util.Objects
 
@@ -299,27 +297,27 @@ fun ActionsSetupBottomSheetContent(
                 ) {
                     actions.forEachIndexed { idx, action ->
                         item(key = Objects.hash(action.hashCode(), idx)) {
-                            val dismissState = rememberDismissState(
+                            val dismissState = rememberSwipeToDismissState(
                                 positionalThreshold = { it / 3 }
                             )
 
-                            LaunchedEffect(dismissState.isDismissed(DismissDirection.EndToStart)) {
-                                if (dismissState.isDismissed(DismissDirection.EndToStart)) {
+                            LaunchedEffect(dismissState.currentValue) {
+                                if (dismissState.currentValue == SwipeToDismissValue.EndToStart) {
                                     scope.launch {
                                         val newActions = actions.filterIndexed { i, _ -> i != idx }
                                         onActionsChange(newActions)
-                                        dismissState.snapTo(DismissValue.Default)
+                                        dismissState.snapTo(SwipeToDismissValue.Settled)
                                     }
                                 }
                             }
 
                             SwipeToDismissBox(
                                 state = dismissState,
-                                directions = setOf(DismissDirection.EndToStart),
+                                enableDismissFromStartToEnd = false,
                                 backgroundContent = {
                                     ListItemDismissDeletableBackground(dismissState)
                                 }) {
-                                ActionCard(action, idx + 1)
+                                ActionSetupCard(action, idx + 1)
                             }
                         }
                     }
@@ -332,11 +330,11 @@ fun ActionsSetupBottomSheetContent(
 
 @Composable
 private fun ListItemDismissDeletableBackground(
-    dismissState: DismissState
+    dismissState: SwipeToDismissState
 ) {
     val color by animateColorAsState(
         when (dismissState.targetValue) {
-            DismissValue.Default -> MaterialTheme.colorScheme.background
+            SwipeToDismissValue.Settled -> MaterialTheme.colorScheme.background
             else -> MaterialTheme.colorScheme.error
         },
         label = "color animation"
@@ -344,7 +342,7 @@ private fun ListItemDismissDeletableBackground(
     val alignment = Alignment.CenterEnd
     val icon = Icons.Rounded.Delete
     val scale by animateFloatAsState(
-        if (dismissState.targetValue == DismissValue.Default) 1f else 1.5f,
+        if (dismissState.targetValue == SwipeToDismissValue.Settled) 1f else 1.5f,
         label = "icon scale animation"
     )
     Box(

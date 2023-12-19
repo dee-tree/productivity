@@ -15,6 +15,6 @@ object Versions {
     const val espressoVersion = "3.5.1"
     const val androidJUnitVersion = "1.1.5"
     const val junitVersion = "4.13.2"
-    const val material3Version = "1.2.0-alpha12"
+    const val material3Version = "1.2.0-beta01"
     const val activityComposeVersion = "1.8.1"
 }

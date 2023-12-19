@@ -2,6 +2,8 @@ package edu.app.productivity.ui
 
 import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -10,6 +12,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Delete
@@ -63,13 +66,14 @@ fun ActionTemplates(
             .heightIn(32.dp, 256.dp)
     ) {
         Text(
-            style = MaterialTheme.typography.titleSmall,
+            style = MaterialTheme.typography.headlineMedium,
             text = stringResource(R.string.action_templates_header)
         )
 
         AnimatedVisibility(
             visible = !showTemplatesSetupBottomSheet && !setupTemplateName,
-            label = "add new template form button") {
+            label = "add new template form button"
+        ) {
 
             // TextButton due to fill width
             TextButton(
@@ -85,7 +89,8 @@ fun ActionTemplates(
 
         AnimatedVisibility(
             visible = showTemplatesSetupBottomSheet || setupTemplateName,
-            label = "close template form button") {
+            label = "close template form button"
+        ) {
 
             // TextButton due to fill width
             TextButton(
@@ -130,9 +135,11 @@ fun ActionTemplates(
             LazyColumn(
                 reverseLayout = true,
                 horizontalAlignment = Alignment.Start,
-                modifier = Modifier.heightIn(32.dp, 256.dp).fillMaxWidth()
+                modifier = Modifier
+                    .heightIn(128.dp, 256.dp)
+                    .fillMaxWidth()
             ) {
-                items(templates.size) {idx ->
+                items(templates.size) { idx ->
                     ActionTemplateCard(name = templates[idx].name, actions = templates[idx].actions)
                 }
             }
@@ -155,23 +162,32 @@ fun ActionTemplates(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ActionTemplateCard(name: String, actions: List<Action>) {
-    Card(colors = CardDefaults.outlinedCardColors()) {
-        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+    Card(
+        colors = CardDefaults.outlinedCardColors(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(modifier = Modifier.padding(8.dp)) {
+            val listState = rememberLazyListState()
             LazyRow(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
+                horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
+                reverseLayout = true,
+                state = listState,
+                flingBehavior = rememberSnapFlingBehavior(lazyListState = listState)
             ) {
                 items(
                     actions.size,
                     key = { idx: Int -> Objects.hash(actions[idx].hashCode(), idx) }
                 ) { idx ->
-                    ActionCard(actions[idx], null)
+                    ActionCard(actions[idx], idx + 1)
                 }
             }
             Spacer(Modifier.padding(vertical = 4.dp))
-            Text(name, style = MaterialTheme.typography.bodySmall)
+            Text(name, style = MaterialTheme.typography.titleMedium)
         }
     }
 }

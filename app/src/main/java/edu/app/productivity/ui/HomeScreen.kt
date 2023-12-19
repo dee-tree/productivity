@@ -61,7 +61,7 @@ fun HomeScreen(
             },
         )
 
-        Spacer(Modifier.fillMaxHeight(0.3f))
+        Spacer(Modifier.fillMaxHeight(0.2f))
 
         AnimatedVisibility(
             visible = (actions.isEmpty() || actions.first() is Action.NotInitiatedAction) && timerState is TimerState.TimerNotInitiated
