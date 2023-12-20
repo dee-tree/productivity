@@ -276,7 +276,6 @@ fun ActionTemplateCard(name: String, actions: List<Action>) {
             LazyRow(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
-                reverseLayout = true,
                 state = listState,
                 flingBehavior = rememberSnapFlingBehavior(lazyListState = listState)
             ) {
