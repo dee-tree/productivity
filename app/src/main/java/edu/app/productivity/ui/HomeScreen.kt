@@ -69,7 +69,12 @@ fun HomeScreen(
             ActionTemplates(
                 templates = templates,
                 onTemplateAdd = { name, actions ->  templatesViewModel.addTemplate(name, actions) },
-                isTemplateNameValid = templatesViewModel::isNameValid
+                isTemplateNameValid = templatesViewModel::isNameValid,
+                onTemplateDeleted = templatesViewModel::deleteTemplate,
+                onTemplateSelected = { (_, actions) ->
+                    timerViewModel.createActions(actions)
+                    timerViewModel.start(ctx, actions.first().duration)
+                }
             )
         }
 

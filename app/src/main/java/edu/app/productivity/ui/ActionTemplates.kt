@@ -66,8 +66,8 @@ fun ActionTemplates(
     templates: List<ActionsTemplateEntity> = emptyList(),
     isTemplateNameValid: (name: String) -> Boolean = { it.isNotBlank() },
     onTemplateAdd: (name: String, actions: List<Action>) -> Unit = { _: String, _: List<Action> -> },
-    onTemplateDeleted: (name: String, actions: List<Action>) -> Unit = { _: String, _: List<Action> -> },
-    onTemplateSelected: (name: String, actions: List<Action>) -> Unit = { _: String, _: List<Action> -> }
+    onTemplateDeleted: (ActionsTemplateEntity) -> Unit = { },
+    onTemplateSelected: (ActionsTemplateEntity) -> Unit = { }
 ) {
     var showTemplatesSetupBottomSheet by remember { mutableStateOf(false) }
     var setupTemplateName by remember { mutableStateOf(false) }
@@ -175,8 +175,8 @@ fun ActionTemplates(
 @Composable
 private fun TemplatesColumn(
     templates: List<ActionsTemplateEntity>,
-    onTemplateDeleted: (name: String, actions: List<Action>) -> Unit = { _: String, _: List<Action> -> },
-    onTemplateSelected: (name: String, actions: List<Action>) -> Unit = { _: String, _: List<Action> -> }
+    onTemplateDeleted: (ActionsTemplateEntity) -> Unit = { },
+    onTemplateSelected: (ActionsTemplateEntity) -> Unit = { }
 ) {
     val scope = rememberCoroutineScope()
     LazyColumn(
@@ -195,13 +195,13 @@ private fun TemplatesColumn(
                 when (dismissState.currentValue) {
                     SwipeToDismissValue.StartToEnd -> scope.launch {
                         val templateToUse = templates[idx]
-                        onTemplateSelected(templateToUse.name, templateToUse.actions)
+                        onTemplateSelected(templateToUse)
                         dismissState.snapTo(SwipeToDismissValue.Settled)
                     }
 
                     SwipeToDismissValue.EndToStart -> scope.launch {
                         val templateToDelete = templates[idx]
-                        onTemplateDeleted(templateToDelete.name, templateToDelete.actions)
+                        onTemplateDeleted(templateToDelete)
                         dismissState.snapTo(SwipeToDismissValue.Settled)
                     }
 
