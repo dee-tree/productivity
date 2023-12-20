@@ -24,7 +24,7 @@ import androidx.compose.ui.test.performTextInput
 import edu.app.productivity.R
 import edu.app.productivity.domain.Action
 import edu.app.productivity.theme.ProductivityTheme
-import edu.app.productivity.ui.timer.SingleShotTimerPlanSheetContent
+import edu.app.productivity.ui.timer.ActionsSetupBottomSheetContent
 import junit.framework.TestCase.assertNotNull
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -54,7 +54,7 @@ class SingleShotTimerPlanTest {
 
                 var actions by remember { mutableStateOf(emptyList<Action>()) }
 
-                SingleShotTimerPlanSheetContent(
+                ActionsSetupBottomSheetContent(
                     actions = actions,
                     onActionsChange = { actions = it },
                     timerSetupIsDial = true,
@@ -117,7 +117,7 @@ class SingleShotTimerPlanTest {
 
                 var actions by remember { mutableStateOf(emptyList<Action>()) }
 
-                SingleShotTimerPlanSheetContent(
+                ActionsSetupBottomSheetContent(
                     actions = actions,
                     onActionsChange = { actions = it },
                     timerSetupIsDial = false,
