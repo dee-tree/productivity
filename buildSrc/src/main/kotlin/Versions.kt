@@ -6,6 +6,7 @@ object Versions {
     const val hiltNavigationComposeVersion = "1.1.0"
     const val lifecycleVersion = "2.6.2"
     const val roomVersion = "2.6.0"
+    const val gsonVersion = "2.10.1"
     const val vicoVersion = "1.12.0"
     const val junit5Version = "5.9.2"
     const val splashScreenVersion = "1.0.1"
@@ -14,6 +15,6 @@ object Versions {
     const val espressoVersion = "3.5.1"
     const val androidJUnitVersion = "1.1.5"
     const val junitVersion = "4.13.2"
-    const val material3Version = "1.2.0-alpha12"
+    const val material3Version = "1.2.0-beta01"
     const val activityComposeVersion = "1.8.1"
 }

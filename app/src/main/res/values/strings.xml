@@ -53,7 +53,9 @@
     <string name="action_rest_title">Rest</string>
     <string name="action_work_default_activity">Work-time</string>
     <string name="action_rest">Rest-time</string>
-    <string name="action_duration">%1$d minutes, %2$d seconds</string>
+<!--    <string name="action_duration">%1$d minutes, %2$d seconds</string>-->
+    <string name="action_duration_minutes">%1$d minutes</string>
+    <string name="action_duration">%1$d:%2$d</string>
 
     <string name="statistics_header">Statistics</string>
     <string name="statistics_no_data_title">Your progress will be displayed here</string>
@@ -85,12 +87,16 @@
     <string name="forget_me_confirmation_confirm">Confirm</string>
     <string name="forget_me_confirmation_decline">Cancel</string>
 
-    <string name="action_templates_header">Action templates</string>
 
     <string name="single_shot_dismiss_confirmation_confirmation_title">Are you sure?</string>
     <string name="single_shot_dismiss_confirmation_confirmation_content">You\'re trying to dismiss non-empty addition action.\nIs it consciously?</string>
 
     <string name="single_shot_dismiss_confirmation_confirm">Dismiss</string>
     <string name="single_shot_dismiss_confirmation_decline">Return to setting up</string>
+
+    <string name="action_templates_header">Action templates</string>
+    <string name="action_template_name_field">Template name (unique)</string>
+    <string name="action_template_name_set">Set template name and continue</string>
+
 
 </resources>

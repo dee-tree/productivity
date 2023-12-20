@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -37,11 +36,7 @@ import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DismissDirection
-import androidx.compose.material3.DismissState
-import androidx.compose.material3.DismissValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -52,10 +47,12 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissState
+import androidx.compose.material3.SwipeToDismissValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberDismissState
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.rememberSwipeToDismissState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -87,12 +84,10 @@ import edu.app.productivity.domain.Action
 import edu.app.productivity.theme.ProductivityTheme
 import kotlinx.coroutines.launch
 import java.util.Objects
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Duration.Companion.seconds
 
 
 @Composable
-fun SingleShotTimerPlanSheet(
+fun ActionsSetupBottomSheet(
     sheetState: SheetState = rememberModalBottomSheetState(),
     onDismiss: () -> Unit = {},
     onSelected: (List<Action>) -> Unit = {},
@@ -113,7 +108,7 @@ fun SingleShotTimerPlanSheet(
         modifier = Modifier.nestedScroll(rememberNestedScrollInteropConnection()),
         windowInsets = WindowInsets.ime
     ) {
-        SingleShotTimerPlanSheetContent(
+        ActionsSetupBottomSheetContent(
             actions = currentActions,
             onActionsChange = { currentActions = it },
             onPlanSelected = { onSelected(currentActions) },
@@ -125,7 +120,7 @@ fun SingleShotTimerPlanSheet(
     val scope = rememberCoroutineScope()
 
     if (showDismissConfirmation) {
-        SingleShotTimerDismissConfirmation(
+        ActionsSetupBottomSheetDismissConfirmation(
             onConfirmed = {
                 showDismissConfirmation = false
                 onDismiss()
@@ -141,7 +136,7 @@ fun SingleShotTimerPlanSheet(
 }
 
 @Composable
-fun SingleShotTimerDismissConfirmation(
+fun ActionsSetupBottomSheetDismissConfirmation(
     onConfirmed: () -> Unit = {},
     onDeclined: () -> Unit = {}
 ) {
@@ -171,7 +166,7 @@ fun SingleShotTimerDismissConfirmation(
 }
 
 @Composable
-fun SingleShotTimerPlanSheetContent(
+fun ActionsSetupBottomSheetContent(
     actions: List<Action>,
     onActionsChange: (List<Action>) -> Unit,
     onPlanSelected: () -> Unit = {},
@@ -302,27 +297,27 @@ fun SingleShotTimerPlanSheetContent(
                 ) {
                     actions.forEachIndexed { idx, action ->
                         item(key = Objects.hash(action.hashCode(), idx)) {
-                            val dismissState = rememberDismissState(
+                            val dismissState = rememberSwipeToDismissState(
                                 positionalThreshold = { it / 3 }
                             )
 
-                            LaunchedEffect(dismissState.isDismissed(DismissDirection.EndToStart)) {
-                                if (dismissState.isDismissed(DismissDirection.EndToStart)) {
+                            LaunchedEffect(dismissState.currentValue) {
+                                if (dismissState.currentValue == SwipeToDismissValue.EndToStart) {
                                     scope.launch {
                                         val newActions = actions.filterIndexed { i, _ -> i != idx }
                                         onActionsChange(newActions)
-                                        dismissState.snapTo(DismissValue.Default)
+                                        dismissState.snapTo(SwipeToDismissValue.Settled)
                                     }
                                 }
                             }
 
                             SwipeToDismissBox(
                                 state = dismissState,
-                                directions = setOf(DismissDirection.EndToStart),
+                                enableDismissFromStartToEnd = false,
                                 backgroundContent = {
                                     ListItemDismissDeletableBackground(dismissState)
                                 }) {
-                                ActionCard(action, idx + 1)
+                                ActionSetupCard(action, idx + 1)
                             }
                         }
                     }
@@ -335,11 +330,11 @@ fun SingleShotTimerPlanSheetContent(
 
 @Composable
 private fun ListItemDismissDeletableBackground(
-    dismissState: DismissState
+    dismissState: SwipeToDismissState
 ) {
     val color by animateColorAsState(
         when (dismissState.targetValue) {
-            DismissValue.Default -> MaterialTheme.colorScheme.background
+            SwipeToDismissValue.Settled -> MaterialTheme.colorScheme.background
             else -> MaterialTheme.colorScheme.error
         },
         label = "color animation"
@@ -347,7 +342,7 @@ private fun ListItemDismissDeletableBackground(
     val alignment = Alignment.CenterEnd
     val icon = Icons.Rounded.Delete
     val scale by animateFloatAsState(
-        if (dismissState.targetValue == DismissValue.Default) 1f else 1.5f,
+        if (dismissState.targetValue == SwipeToDismissValue.Settled) 1f else 1.5f,
         label = "icon scale animation"
     )
     Box(
@@ -365,91 +360,15 @@ private fun ListItemDismissDeletableBackground(
     }
 }
 
-@Composable
-private fun ActionCard(action: Action, idx: Int? = null) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background)
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-
-            if (idx != null) {
-                Text("$idx", style = MaterialTheme.typography.bodyLarge)
-            }
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 6.dp, horizontal = 16.dp),
-                verticalArrangement = Arrangement.Center
-            ) {
-
-                val title = when (action) {
-                    is Action.Work -> stringResource(R.string.action_work_title)
-                    is Action.Rest -> stringResource(R.string.action_rest_title)
-                    else -> ""
-                }
-
-                val activityName = when (action) {
-                    is Action.Work -> action.activityName.ifBlank { stringResource(R.string.action_work_default_activity) }
-                    is Action.Rest -> stringResource(R.string.action_rest)
-                    else -> ""
-                }
-
-                Text(text = title, style = MaterialTheme.typography.titleLarge)
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(activityName)
-                    Text(
-                        stringResource(
-                            R.string.action_duration,
-                            action.duration.inWholeMinutes,
-                            action.duration.inWholeSeconds % 60
-                        )
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
-fun PreviewActionWorkCardLight() {
-    ProductivityTheme {
-        Surface {
-            ActionCard(Action.Work(15.minutes + 30.seconds, "Study"))
-            Spacer(Modifier.padding(16.dp))
-            ActionCard(Action.Work(15.minutes + 30.seconds, "Study"), 1)
-        }
-    }
-}
-
-@Composable
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
-fun PreviewActionRestCardLight() {
-    ProductivityTheme {
-        Surface {
-            ActionCard(Action.Rest(7.minutes + 30.seconds))
-            Spacer(Modifier.padding(16.dp))
-            ActionCard(Action.Rest(7.minutes + 30.seconds), 1)
-        }
-    }
-}
-
 
 @Composable
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
 @OptIn(ExperimentalMaterial3Api::class)
-fun PreviewSingleShotTimerPlanSheetLight() {
+private fun PreviewActionsSetupBottomSheetLight() {
     ProductivityTheme {
         Surface {
             var actions by remember { mutableStateOf(emptyList<Action>()) }
-            SingleShotTimerPlanSheetContent(
+            ActionsSetupBottomSheetContent(
                 actions = actions,
                 onActionsChange = { actions = it }
             )
@@ -460,11 +379,11 @@ fun PreviewSingleShotTimerPlanSheetLight() {
 @Composable
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
 @OptIn(ExperimentalMaterial3Api::class)
-fun PreviewSingleShotTimerPlanSheetLightDial() {
+fun PreviewActionsSetupBottomSheetLightDial() {
     ProductivityTheme {
         Surface {
             var actions by remember { mutableStateOf(emptyList<Action>()) }
-            SingleShotTimerPlanSheetContent(
+            ActionsSetupBottomSheetContent(
                 actions = actions,
                 onActionsChange = { actions = it },
                 timerSetupIsDial = true
@@ -476,11 +395,11 @@ fun PreviewSingleShotTimerPlanSheetLightDial() {
 @Composable
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @OptIn(ExperimentalMaterial3Api::class)
-fun PreviewSingleShotTimerPlanSheetDark() {
+fun PreviewActionsSetupBottomSheetDark() {
     ProductivityTheme(darkTheme = true) {
         Surface {
             var actions by remember { mutableStateOf(emptyList<Action>()) }
-            SingleShotTimerPlanSheetContent(
+            ActionsSetupBottomSheetContent(
                 actions = actions,
                 onActionsChange = { actions = it }
             )

@@ -95,6 +95,9 @@ dependencies {
     testImplementation(Dependencies.roomTest)
     androidTestImplementation(Dependencies.roomTest)
 
+    // gson
+    implementation(Dependencies.gson)
+
     //  compose charts
     implementation(Dependencies.vicoCompose)
     implementation(Dependencies.vicoCore)
