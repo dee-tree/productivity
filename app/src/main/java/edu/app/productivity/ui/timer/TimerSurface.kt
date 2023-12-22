@@ -20,6 +20,7 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -220,11 +221,8 @@ fun TimerSurface(
 
 @Composable
 fun LabeledActions(actions: List<Action>) {
-    val scope = rememberCoroutineScope()
-
     Column(horizontalAlignment = Alignment.End, modifier = Modifier.fillMaxWidth()) {
         Spacer(Modifier.padding(vertical = 4.dp))
-
         val rowState = rememberLazyListState()
 
         LazyRow(
@@ -234,44 +232,10 @@ fun LabeledActions(actions: List<Action>) {
             ),
             verticalAlignment = Alignment.CenterVertically,
             state = rowState,
+            flingBehavior = rememberSnapFlingBehavior(rowState),
             modifier = Modifier.fillMaxWidth(0.4f),
             contentPadding = PaddingValues(vertical = 4.dp, horizontal = 8.dp)
         ) {
-            if (!rowState.isScrollInProgress) {
-                scope.launch {
-                    delay(300)
-
-                    // need scroll to first or last?
-                    rowState.layoutInfo.visibleItemsInfo.first().let { first ->
-                        if (first.index == 0 && first.offset == 0) {
-                            rowState.animateScrollToItem(first.index)
-                            return@launch
-                        }
-                    }
-
-                    rowState.layoutInfo.visibleItemsInfo.last().let { last ->
-                        if (last.index == actions.size - 1 && last.offset + last.size == rowState.layoutInfo.viewportSize.width) {
-                            rowState.animateScrollToItem(last.index)
-                            return@launch
-                        }
-                    }
-
-
-                    val halfedViewPortSize = rowState.layoutInfo.viewportSize.width / 2
-                    val elToScroll = rowState.layoutInfo.visibleItemsInfo.minBy {
-                        min(
-                            abs(it.offset + it.size - halfedViewPortSize),
-                            abs(halfedViewPortSize - it.offset)
-                        )
-                    }
-
-                    rowState.animateScrollToItem(
-                        elToScroll.index,
-                        scrollOffset = -(halfedViewPortSize - elToScroll.size / 2)
-                    )
-                }
-            }
-
             items(actions.size) { actionIdx ->
                 val labelAlpha = 0.4f + 0.6f * (actions.size - actionIdx).toFloat() / actions.size
                 MarkedLabel(actions[actionIdx], modifier = Modifier.alpha(labelAlpha))
