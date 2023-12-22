@@ -13,6 +13,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.Instant
 import java.time.ZoneId
+import java.time.temporal.ChronoUnit
 import javax.inject.Inject
 
 @HiltViewModel
@@ -85,17 +86,18 @@ private fun List<ActionHistoryEntity>.toActionsPerDay(days: Int) = groupBy {
         instant.dayOfYear + instant.year
     }
 }.map { (day, actions) -> day to actions }.sortedByDescending { it.first }.map { it.second }.let {
-
-    val nearestEmptyDays = it.firstOrNull()
-        ?.firstOrNull()
-        ?.completedAt
-        ?.toInstant()
-        ?.let { nearestDay ->
-            calendarDaysBetween(
-                nearestDay.atZone(ZoneId.systemDefault()),
-                Instant.now().atZone(ZoneId.systemDefault())
-            )
-        } ?: days
-
-    List(nearestEmptyDays) { emptyList<ActionHistoryEntity>() } + it + List(days - nearestEmptyDays - it.size) { emptyList() }
+    (0..<days).map { daysAgo ->
+        it.find { dayStats ->
+            dayStats.firstOrNull()?.let {
+                calendarDaysBetween(
+                    it.completedAt.toInstant().atZone(
+                        ZoneId.systemDefault()
+                    ),
+                    Instant.now().minus(daysAgo.toLong(), ChronoUnit.DAYS)
+                        .atZone(ZoneId.systemDefault())
+                ) == 0
+            } ?: false
+        }
+            ?: emptyList()
+    }
 }

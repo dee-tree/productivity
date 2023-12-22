@@ -388,8 +388,8 @@ fun ActivitiesPieChart(
             model = model,
             legend = horizontalLegend(
                 items = (0..<columnsCount).map {
-                    chartLegend(color = topColors[it], text = actionsPerActivity[it].first)
-                },
+                    chartLegend(color = topColors[columnsCount - it - 1], text = actionsPerActivity[it].first)
+                }.asReversed(),
                 iconSize = 8.dp,
                 iconPadding = 4.dp,
                 spacing = 8.dp
